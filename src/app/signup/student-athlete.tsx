@@ -45,7 +45,7 @@ export default function StudentAthleteSignup() {
   }, [watchMarketingOptions, setValue, regularMarketingOptions, selectAll]);
 
   const onSubmit = async (data: StudentAthleteFormValues) => {
-    const response = await fetch('/api/signup/student-athletes', {
+    const response = await fetch('/api/signup/student-athlete', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
