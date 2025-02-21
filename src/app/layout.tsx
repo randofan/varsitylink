@@ -5,7 +5,7 @@ import { DM_Sans } from 'next/font/google';
 const dmSans = DM_Sans({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'NIL Influencer Marketplace',
+  title: 'VarsityLink',
   description:
     'Connecting small businesses with student-athletes for impactful marketing campaigns powered by AI.',
 };
