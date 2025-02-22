@@ -16,12 +16,12 @@ export default function Home() {
     <main>
       <section className="min-h-screen my-16 bg-white text-black flex items-center overflow-y-auto">
         <Container maxWidth="lg" className="text-center mx-auto py-20 px-14">
-          <Typography variant="h1" className="font-bold mb-4">
+          <Typography variant="h1" className="font-bold mb-4" fontWeight={525}>
         Score Big with AI-Powered NIL Marketing
           </Typography>
-          <Typography variant="h5" className="mb-8">
-        Small businesses, Big impact: Partner with student athletes to bring your brand vision to life.
-          </Typography>
+            <Typography variant="h5" className="mb-8">
+          Small businesses, Big impact: Partner with student athletes to bring your brand vision to life.
+            </Typography>
           <SignupButton />
         </Container>
       </section>

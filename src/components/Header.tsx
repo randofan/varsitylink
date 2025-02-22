@@ -9,7 +9,7 @@ export default function Header() {
         <div className="flex justify-between items-center h-full">
           <div>
             <MuiLink href="/">
-              <Image src="/logo.png" alt="Logo" width={100} height={100} />
+              <Image src="/logo.svg" alt="Logo" width={100} height={100} />
             </MuiLink>
           </div>
           <div className="p-2">
