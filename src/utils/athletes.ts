@@ -30,5 +30,21 @@ export const athletes = [
         social: {
             instagram: { username: "lanaxnavarro", followers: 2.5 }
         }
+    },
+    {
+        name: "Milton Hopkins Jr",
+        sport: "Football (Defensive End)",
+        image: "/milton.jpg",
+        social: {
+            instagram: { username: "millyrockjr", followers: 2.7 }
+        }
+    },
+    {
+        name: "Nedim Suko",
+        sport: "Men's Tennis",
+        image: "/nedim.jpg",
+        social: {
+            instagram: { username: "nedimsuko", followers: 1.4 }
+        }
     }
 ];

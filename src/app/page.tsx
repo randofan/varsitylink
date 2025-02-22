@@ -16,7 +16,7 @@ export default function Home() {
     <main>
       <section className="min-h-screen my-16 bg-white text-black flex items-center overflow-y-auto">
         <Container maxWidth="lg" className="text-center mx-auto py-20 px-14">
-          <Typography variant="h1" className="font-bold mb-4" fontWeight={525}>
+          <Typography variant="h1" className="font-bold mb-4">
         Score Big with AI-Powered NIL Marketing
           </Typography>
             <Typography variant="h5" className="mb-8">
@@ -26,7 +26,7 @@ export default function Home() {
         </Container>
       </section>
 
-      <section className="min-h-screen my-16 bg-gray-50 flex items-center overflow-y-auto">
+      <section className="min-h-screen my-16 bg-gray-50 flex items-center overflow-x-hidden">
         <Container className="py-20">
           <Typography variant="h3" className="text-center mb-8">
             Student athletes who represent you
@@ -34,17 +34,36 @@ export default function Home() {
           <Typography variant="h6" className="text-center mb-12 text-gray-600">
             Browse our diverse roster of student athletes sorted by sport, school, or social outreach.
           </Typography>
-          <Carousel
-            showThumbs={false}
-            showStatus={false}
-            infiniteLoop
-            centerMode
-            centerSlidePercentage={33}
-          >
-            {athletes.map((athlete: AthleteCardProps, index: Key) => (
-              <AthleteCard key={index} {...athlete} />
-            ))}
-          </Carousel>
+          <div className="carousel-container">
+            <Carousel
+              showThumbs={false}
+              showStatus={false}
+              infiniteLoop
+              centerMode={false}
+              swipeable={true}
+              emulateTouch={true}
+              showArrows={true}
+              autoPlay={false}
+              showIndicators={false}
+              renderArrowPrev={(clickHandler, hasPrev) => hasPrev && (
+                <button onClick={clickHandler} className="control-arrow control-prev" />
+              )}
+              renderArrowNext={(clickHandler, hasNext) => hasNext && (
+                <button onClick={clickHandler} className="control-arrow control-next" />
+              )}
+            >
+              {/* Group athletes into sets of 3 */}
+              {Array.from({ length: Math.ceil(athletes.length / 3) }, (_, i) => (
+                <div key={i} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {athletes.slice(i * 3, (i + 1) * 3).map((athlete: AthleteCardProps, index: Key) => (
+                    <div key={index} className="px-2">
+                      <AthleteCard {...athlete} />
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </Carousel>
+          </div>
         </Container>
       </section>
 

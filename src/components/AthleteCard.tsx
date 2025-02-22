@@ -7,7 +7,13 @@ import { AthleteCardProps } from '@/utils/types';
 
 export default function AthleteCard({ name, sport, image, social }: AthleteCardProps) {
     return (
-        <Card className="w-64 m-4">
+        <Card sx={{ 
+            height: '100%', 
+            display: 'flex', 
+            flexDirection: 'column',
+            margin: '8px',
+            minHeight: '400px' 
+        }}>
             <div className="relative h-64 w-full">
                 <Image
                     src={image}

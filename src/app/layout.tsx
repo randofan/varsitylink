@@ -1,6 +1,7 @@
 import './globals.css';
 import Header from '@/components/Header';
 import { DM_Sans } from 'next/font/google';
+import { StyledEngineProvider } from '@mui/material/styles';
 
 const dmSans = DM_Sans({ subsets: ['latin'] });
 
@@ -17,9 +18,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={dmSans.className}>
-        <Header />
-        <main>{children}</main>
+      <body id="__next" className={dmSans.className}>
+        <StyledEngineProvider injectFirst>
+          <Header />
+          <main>{children}</main>
+        </StyledEngineProvider>
       </body>
     </html>
   );
