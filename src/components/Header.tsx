@@ -1,11 +1,11 @@
 import Image from 'next/image';
-import { Link as MuiLink } from '@mui/material';
+import Link from 'next/link';
 import SignupButton from './SignupButton';
 
 export default function Header() {
   return (
     <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
-      <MuiLink href="/">
+      <Link href="/">
         <Image 
           src="/logo.svg" 
           alt="Logo" 
@@ -16,7 +16,7 @@ export default function Header() {
         height: 'auto'
           }}
         />
-      </MuiLink>
+      </Link>
       <SignupButton />
     </header>
   );

@@ -7,12 +7,13 @@ import AthleteCard from '@/components/AthleteCard';
 import SignupPage from './signup/signup';
 import { Carousel } from 'react-responsive-carousel';
 import "react-responsive-carousel/lib/styles/carousel.min.css";
-import { AthleteCardProps } from '@/utils/types';
 import SignupButton from '@/components/SignupButton';
+import Header from '@/components/Header';
 
 export default function Home() {
   return (
-    <main>
+    <div>
+      <Header />
       <Box
         component="section"
         sx={{
@@ -193,6 +194,6 @@ export default function Home() {
           </Box>
         </Container>
       </Box>
-    </main>
+    </div>
   );
 }

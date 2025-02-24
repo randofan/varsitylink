@@ -19,6 +19,7 @@ model StudentAthlete {
   email            String   @unique
   sport            String
   age              Int
+  image            String
   major            String
   gender           String
   ethnicity        String
@@ -47,6 +48,7 @@ model Business {
 
 model Campaign {
   id                 String   @id @default(uuid())
+  name               String
   campaignSummary    String
   budget             String
   athletePartnerCount String

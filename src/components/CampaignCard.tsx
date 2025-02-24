@@ -1,51 +1,40 @@
-import React from 'react';
+'use client';
+
 import { Card, CardContent, Typography } from '@mui/material';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Campaign } from '@prisma/client';
 
-export interface CampaignCardProps {
-  id: string;
-  name: string;
-  status: string;
-  dateCreated: string;
-  startDate: string;
-  endDate: string;
-  summary: string;
-}
-
-export default function CampaignCard({
-  id,
-  name,
-  status,
-  dateCreated,
-  startDate,
-  endDate,
-  summary,
-}: CampaignCardProps) {
-  const router = useRouter();
-
-  const handleClick = () => {
-    router.push(`/business/campaigns/${id}`);
-  };
-
+export default function CampaignCard(props: Campaign) {
   return (
-    <Card onClick={handleClick} sx={{ cursor: 'pointer', height: '100%' }}>
-      <CardContent>
-        <Typography variant="h6" gutterBottom>
-          {name}
-        </Typography>
-        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-          Status: {status}
-        </Typography>
-        <Typography variant="caption" color="text.secondary" display="block">
-          Created: {dateCreated}
-        </Typography>
-        <Typography variant="caption" color="text.secondary" display="block">
-          Start: {startDate} | End: {endDate}
-        </Typography>
-        <Typography variant="body2" sx={{ mt: 1 }}>
-          {summary}
-        </Typography>
-      </CardContent>
-    </Card>
+    <Link
+      href={`/business/campaigns/${props.id}`}
+      style={{ textDecoration: 'none' }}
+    >
+      <Card sx={{
+        cursor: 'pointer',
+        height: '100%',
+        '&:hover': {
+          boxShadow: 6,
+        }
+      }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            {props.name}
+          </Typography>
+          <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+            Status: {props.status}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" display="block">
+            Created: {props.createdAt}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" display="block">
+            Start: {props.startDate} | End: {props.endDate}
+          </Typography>
+          <Typography variant="body2" sx={{ mt: 1 }}>
+            {props.summary}
+          </Typography>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
