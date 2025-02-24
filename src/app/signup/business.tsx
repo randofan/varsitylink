@@ -87,21 +87,21 @@ export default function BusinessSignup() {
 
   if (submitted) {
     return (
-      <div className="w-full max-w-2xl mx-auto px-4 md:px-0 py-16">
+      <>
         <Typography variant="h4" color="primary" gutterBottom>
           Thank You For Signing Up!
         </Typography>
         <Typography variant="body1" component="p">
           Your business information has been successfully submitted. Our team will review your application and contact you soon.
         </Typography>
-      </div>
+      </>
     );
   }
 
   const partnerCountOptions = ['1', '2', '3', '4', '5', '6', 'any'];
 
   return (
-    <main className="w-full max-w-3xl mx-auto px-4 md:px-8 py-8">
+    <main>
       <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <TextField
           id="outlined-basic"

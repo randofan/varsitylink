@@ -1,29 +1,28 @@
 import Image from 'next/image';
-import { Card, CardContent, Typography } from '@mui/material';
+import { Card, CardContent, Typography, Box } from '@mui/material';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import TikTokIcon from '@mui/icons-material/MusicNote';
 import { AthleteCardProps } from '@/utils/types';
 
-
 export default function AthleteCard({ name, sport, image, social }: AthleteCardProps) {
     return (
-        <Card sx={{ 
-            height: '100%', 
-            display: 'flex', 
+        <Card sx={{
+            height: '100%',
+            display: 'flex',
             flexDirection: 'column',
             margin: '8px',
-            minHeight: '400px' 
+            minHeight: '400px'
         }}>
-            <div className="relative h-64 w-full">
+            <Box sx={{ position: 'relative', height: '256px', width: '100%' }}>
                 <Image
                     src={image}
                     alt={name}
                     fill
-                    className="object-cover"
+                    style={{ objectFit: 'cover' }}
                 />
-            </div>
+            </Box>
             <CardContent>
-                <Typography variant="h6" className="font-bold">
+                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                     {name}
                 </Typography>
                 <Typography variant="subtitle1" color="text.secondary">
@@ -31,23 +30,22 @@ export default function AthleteCard({ name, sport, image, social }: AthleteCardP
                 </Typography>
 
                 {social.instagram && (
-                    <div className="flex items-center gap-2 mt-2">
-                        <InstagramIcon className="text-gray-600" />
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2 }}>
+                        <InstagramIcon sx={{ color: 'text.secondary' }} />
                         <Typography variant="body2">
                             @{social.instagram.username} • {social.instagram.followers}k
                         </Typography>
-                    </div>
+                    </Box>
                 )}
                 {social.tiktok && (
-                    <div className="flex items-center gap-2 mt-2">
-                        <TikTokIcon className="text-gray-600" />
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2 }}>
+                        <TikTokIcon sx={{ color: 'text.secondary' }} />
                         <Typography variant="body2">
                             @{social.tiktok.username} • {social.tiktok.followers}k
                         </Typography>
-                    </div>
+                    </Box>
                 )}
-
-            </CardContent>
-        </Card>
+            </CardContent >
+        </Card >
     );
 }

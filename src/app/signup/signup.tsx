@@ -15,8 +15,8 @@ export default function SignupPage() {
   return (
     <div>
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
-        <Tabs 
-          value={currentTab} 
+        <Tabs
+          value={currentTab}
           onChange={handleTabChange}
           centered
           variant="fullWidth"

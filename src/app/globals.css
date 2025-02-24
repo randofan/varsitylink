@@ -1,5 +1,4 @@
-@import "tailwindcss";
-
+/* Base styles */
 :root {
   --background: #ffffff;
   --foreground: black;
@@ -33,60 +32,5 @@ a {
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
-  }
-}
-
-/* Carousel Styles */
-.carousel-container {
-  max-width: 100%;
-  overflow: hidden;
-}
-
-.carousel .slide {
-  padding: 0 16px;
-}
-
-.carousel.carousel-slider {
-  overflow: visible;
-}
-
-.carousel .control-arrow {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 10;
-}
-
-.carousel .control-prev {
-  left: -50px;
-}
-
-.carousel .control-next {
-  right: -50px;
-}
-
-@media (max-width: 640px) {
-  .carousel-container {
-    padding: 0 10px;
-  }
-  
-  .carousel .slide {
-    padding: 0 8px;
-  }
-  
-  .carousel .control-arrow {
-    width: 30px;
-    height: 30px;
-  }
-  
-  .carousel .control-prev {
-    left: -35px;
-  }
-  
-  .carousel .control-next {
-    right: -35px;
   }
 }

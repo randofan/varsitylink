@@ -46,12 +46,15 @@ model Business {
 }
 
 model Campaign {
-  id                 Int      @id @default(autoincrement())
+  id                 String   @id @default(uuid())
   campaignSummary    String
   budget             String
   athletePartnerCount String
   sports             String[]
   createdAt          DateTime @default(now())
+  startDate          DateTime
+  endDate            DateTime
+  status             String
 
   // Foreign key to Business
   businessId         Int

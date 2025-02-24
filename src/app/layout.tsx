@@ -18,7 +18,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body id="__next" className={dmSans.className}>
+      <body className={dmSans.className}>
         <StyledEngineProvider injectFirst>
           <Header />
           <main>{children}</main>
