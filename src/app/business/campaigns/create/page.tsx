@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import {
     TextField,
     Button,
@@ -10,37 +11,73 @@ import {
     MenuItem,
     FormControl,
     InputLabel,
-    Paper
+    Paper,
+    CircularProgress,
+    Snackbar,
+    Alert,
+    Grid,
+    Card,
+    CardContent,
+    FormHelperText,
 } from '@mui/material';
-import { useForm } from 'react-hook-form';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { Controller, useForm } from 'react-hook-form';
+import StudentAthleteCard from '@/components/StudentAthleteCard';
+import { CampaignFormData, sportsOptions } from '@/utils/types';
+import { StudentAthlete, Campaign, Compensations } from '@prisma/client';
 
-interface CampaignFormData {
-    campaignSummary: string;
-    budget: string;
-    athletePartnerCount: string;
-    sports: string[];
-    customSport?: string;
-}
-
-interface GeneratedCampaign {
-    objectives: string;
-    targetAudience: string;
-    channels: string;
-    timeline: string;
-    budgetBreakdown: string;
-    creativeConcept: string;
-    metrics: string;
-}
 
 export default function SignupWizard() {
+    const router = useRouter();
     const [step, setStep] = useState(1);
-    const [generatedCampaign, setGeneratedCampaign] = useState<GeneratedCampaign | null>(null);
-    const { register, handleSubmit } = useForm<CampaignFormData>();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [athletes, setAthletes] = useState<StudentAthlete[]>([]);
+    const [selectedAthletes, setSelectedAthletes] = useState<StudentAthlete[]>([]);
+    const [generatedCampaign, setGeneratedCampaign] = useState<Campaign | null>(null);
 
     const nextStep = () => setStep(step + 1);
     const prevStep = () => setStep(step - 1);
 
-    const onSubmit = async (data: CampaignFormData) => {
+    const { control, handleSubmit } = useForm<CampaignFormData>({
+        defaultValues: {
+            name: '',
+            campaignSummary: '',
+            maxBudget: '',
+            compensation: Compensations.FixedFee,
+            studentAthleteCount: '3',
+            sports: [],
+            startDate: new Date(),
+            endDate: new Date(new Date().setMonth(new Date().getMonth() + 1))
+        }
+    });
+
+    // Initialize and fetch athletes
+    useEffect(() => {
+        const fetchAthletes = async () => {
+            setLoading(true);
+            try {
+                const response = await fetch('/api/student-athlete');
+                if (!response.ok) throw new Error('Failed to fetch athletes');
+                const data = await response.json();
+                setAthletes(data);
+            } catch (err) {
+                setError('Failed to fetch athletes');
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchAthletes();
+    }, []);
+
+    const onSubmitForm = async (data: CampaignFormData) => {
+        setLoading(true);
+        setError(null);
+
         try {
             const response = await fetch('/api/generate', {
                 method: 'POST',
@@ -53,157 +90,567 @@ export default function SignupWizard() {
             if (!response.ok) throw new Error('Failed to generate campaign');
 
             const result = await response.json();
-            setGeneratedCampaign(result.draftCampaign);
+            setGeneratedCampaign(result);
             nextStep();
-        } catch (error) {
-            console.error('Error generating campaign:', error);
-            alert('Failed to generate campaign. Please try again.');
+        } catch (err) {
+            console.error('Error generating campaign:', err);
+            setError('Failed to generate campaign. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
-    const sportOptions = ['Football', 'Basketball', 'Soccer', 'Baseball', 'Other'];
-    const partnerCountOptions = ['1', '2', '3', '4', '5', '6', 'any'];
+    const submitFinalCampaign = async () => {
+        setLoading(true);
+        setError(null);
 
-    return (
-        <Box sx={{ maxWidth: 800, mx: 'auto', p: 4 }}>
-            <Typography variant="h4" gutterBottom>
-                Create a new campaign
-            </Typography>
+        try {
+            if (!generatedCampaign) throw new Error('No campaign data');
 
-            {step === 1 && (
-                <Paper sx={{ p: 4 }}>
-                    <form onSubmit={handleSubmit(onSubmit)}>
+            const finalCampaign = {
+                ...generatedCampaign,
+                studentAthletes: selectedAthletes.map(athlete => athlete.id)
+            };
+
+            const response = await fetch('/api/campaign', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(finalCampaign),
+            });
+
+            if (!response.ok) throw new Error('Failed to create campaign');
+
+            const result = await response.json();
+            router.push(`/campaign/${result.id}`);
+        } catch (err) {
+            console.error('Error creating campaign:', err);
+            setError('Failed to create campaign. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const updateCampaignField = (field: string, value: unknown) => {
+        if (!generatedCampaign) return;
+        setGeneratedCampaign({
+            ...generatedCampaign,
+            [field]: value
+        });
+    };
+
+    const remainingAthletes = useMemo(() => {
+        if (!athletes.length) return [];
+        return athletes.filter(athlete =>
+            !selectedAthletes.some(selected => selected.id === athlete.id)
+        );
+    }, [athletes, selectedAthletes]);
+
+    const replaceAthlete = (index: number) => {
+        if (remainingAthletes.length === 0) return;
+        const newAthlete = remainingAthletes[0];
+        setSelectedAthletes(prev => {
+            const updated = [...prev];
+            updated[index] = newAthlete;
+            return updated;
+        });
+    };
+
+    const renderStep = () => {
+        switch (step) {
+            case 1:
+                return (
+                    <Paper sx={{ p: 4 }}>
+                        <Typography variant="h5" gutterBottom>Campaign Details</Typography>
+                        <form onSubmit={handleSubmit(onSubmitForm)}>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                                <Controller
+                                    name="name"
+                                    control={control}
+                                    rules={{ required: 'Campaign name is required' }}
+                                    render={({ field, fieldState }) => (
+                                        <TextField
+                                            {...field}
+                                            label="Campaign Name"
+                                            error={!!fieldState.error}
+                                            helperText={fieldState.error?.message}
+                                            fullWidth
+                                        />
+                                    )}
+                                />
+                                <Controller
+                                    name="campaignSummary"
+                                    control={control}
+                                    rules={{ required: 'Campaign summary is required' }}
+                                    render={({ field, fieldState }) => (
+                                        <TextField
+                                            {...field}
+                                            label="Campaign Summary"
+                                            multiline
+                                            rows={4}
+                                            error={!!fieldState.error}
+                                            helperText={fieldState.error?.message}
+                                            placeholder="Describe your campaign objectives and goals"
+                                            fullWidth
+                                        />
+                                    )}
+                                />
+                                <Controller
+                                    name="maxBudget"
+                                    control={control}
+                                    rules={{ required: 'Budget is required' }}
+                                    render={({ field, fieldState }) => (
+                                        <TextField
+                                            {...field}
+                                            label="Maximum Budget"
+                                            placeholder="e.g., $5000 or 'Free Product'"
+                                            error={!!fieldState.error}
+                                            helperText={fieldState.error?.message}
+                                            fullWidth
+                                        />
+                                    )}
+                                />
+                                <Controller
+                                    name="compensation"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <FormControl fullWidth>
+                                            <InputLabel>Compensation Type</InputLabel>
+                                            <Select
+                                                {...field}
+                                                label="Compensation Type"
+                                            >
+                                                {Object.values(Compensations).map((option) => (
+                                                    <MenuItem key={option} value={option}>
+                                                        {option}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                    )}
+                                />
+                                <Controller
+                                    name="studentAthleteCount"
+                                    control={control}
+                                    rules={{ required: 'Number of athletes is required' }}
+                                    render={({ field, fieldState }) => (
+                                        <FormControl fullWidth error={!!fieldState.error}>
+                                            <InputLabel>Student Athlete Count</InputLabel>
+                                            <Select
+                                                {...field}
+                                                label="Student Athlete Count"
+                                            >
+                                                {['1', '2', '3', '4', '5', '6', 'any'].map((option) => (
+                                                    <MenuItem key={option} value={option}>
+                                                        {option === 'any' ? 'Any number of athletes' : `${option} athlete${option === '1' ? '' : 's'}`}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                            {fieldState.error && <FormHelperText>{fieldState.error.message}</FormHelperText>}
+                                        </FormControl>
+                                    )}
+                                />
+                                <Controller
+                                    name="sports"
+                                    control={control}
+                                    rules={{ required: 'At least one sport is required' }}
+                                    render={({ field, fieldState }) => (
+                                        <FormControl fullWidth error={!!fieldState.error}>
+                                            <InputLabel>Sports</InputLabel>
+                                            <Select
+                                                {...field}
+                                                multiple
+                                                label="Sports"
+                                            >
+                                                {sportsOptions.map((sport) => (
+                                                    <MenuItem key={sport} value={sport}>
+                                                        {sport}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                            {fieldState.error && <FormHelperText>{fieldState.error.message}</FormHelperText>}
+                                        </FormControl>
+                                    )}
+                                />
+
+                                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                    <Grid container spacing={2}>
+                                        <Grid item xs={12} sm={6}>
+                                            <Controller
+                                                name="startDate"
+                                                control={control}
+                                                rules={{ required: 'Start date is required' }}
+                                                render={({ field, fieldState }) => (
+                                                    <DatePicker
+                                                        label="Start Date"
+                                                        value={field.value}
+                                                        onChange={field.onChange}
+                                                        slotProps={{
+                                                            textField: {
+                                                                fullWidth: true,
+                                                                error: !!fieldState.error,
+                                                                helperText: fieldState.error?.message
+                                                            }
+                                                        }}
+                                                    />
+                                                )}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={6}>
+                                            <Controller
+                                                name="endDate"
+                                                control={control}
+                                                rules={{ required: 'End date is required' }}
+                                                render={({ field, fieldState }) => (
+                                                    <DatePicker
+                                                        label="End Date"
+                                                        value={field.value}
+                                                        onChange={field.onChange}
+                                                        slotProps={{
+                                                            textField: {
+                                                                fullWidth: true,
+                                                                error: !!fieldState.error,
+                                                                helperText: fieldState.error?.message
+                                                            }
+                                                        }}
+                                                    />
+                                                )}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </LocalizationProvider>
+
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                    disabled={loading}
+                                    sx={{
+                                        bgcolor: '#4767F5',
+                                        '&:hover': { bgcolor: '#3852c4' },
+                                        mt: 2
+                                    }}
+                                >
+                                    {loading ? <CircularProgress size={24} /> : 'Generate Campaign'}
+                                </Button>
+                            </Box>
+                        </form>
+                    </Paper>
+                );
+
+            case 2:
+                return generatedCampaign ? (
+                    <Paper sx={{ p: 4 }}>
+                        <Typography variant="h5" gutterBottom>Generated Campaign Strategy</Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                            Review and edit the generated campaign details before proceeding
+                        </Typography>
+
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                            <TextField
-                                label="Campaign Summary"
-                                multiline
-                                rows={4}
-                                {...register('campaignSummary', { required: true })}
-                                placeholder="Describe your campaign objectives and goals"
-                            />
+                            {Object.entries(generatedCampaign).map(([key, value]) => {
+                                if (['id', 'status', 'createdAt', 'businessId', 'studentAthletes'].includes(key)) {
+                                    return null;
+                                }
 
-                            <TextField
-                                label="Budget"
-                                {...register('budget', { required: true })}
-                                placeholder="e.g., $5000"
-                            />
+                                const formattedKey = key
+                                    .replace(/([A-Z])/g, ' $1')
+                                    .replace(/^./, (str) => str.toUpperCase());
 
-                            <FormControl fullWidth>
-                                <InputLabel>Athlete Partner Count</InputLabel>
-                                <Select
-                                    label="Athlete Partner Count"
-                                    defaultValue=""
-                                    {...register('athletePartnerCount', { required: true })}
+                                return (
+                                    <Card key={key} variant="outlined" sx={{ p: 2 }}>
+                                        <CardContent>
+                                            <Typography variant="h6" color="primary" gutterBottom>
+                                                {formattedKey}
+                                            </Typography>
+
+                                            {typeof value === 'string' && (
+                                                <TextField
+                                                    value={value}
+                                                    onChange={(e) => updateCampaignField(key, e.target.value)}
+                                                    multiline={value.length > 50}
+                                                    rows={value.length > 100 ? 4 : 2}
+                                                    fullWidth
+                                                />
+                                            )}
+
+                                            {Array.isArray(value) && (
+                                                <Typography>
+                                                    {value.join(', ')}
+                                                </Typography>
+                                            )}
+
+                                            {value instanceof Date && (
+                                                <Typography>
+                                                    {new Date(value).toLocaleDateString()}
+                                                </Typography>
+                                            )}
+                                        </CardContent>
+                                    </Card>
+                                );
+                            })}
+
+                            <Box sx={{ display: 'flex', gap: 2, mt: 3, justifyContent: 'space-between' }}>
+                                <Button
+                                    onClick={prevStep}
+                                    variant="outlined"
                                 >
-                                    {partnerCountOptions.map((option) => (
-                                        <MenuItem key={option} value={option}>
-                                            {option === 'any' ? 'Any number of athletes' : `${option} athlete${option === '1' ? '' : 's'}`}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-
-                            <FormControl fullWidth>
-                                <InputLabel>Sports</InputLabel>
-                                <Select
-                                    multiple
-                                    label="Sports"
-                                    {...register('sports', { required: true })}
+                                    Back
+                                </Button>
+                                <Button
+                                    onClick={nextStep}
+                                    variant="contained"
+                                    sx={{
+                                        bgcolor: '#4767F5',
+                                        '&:hover': { bgcolor: '#3852c4' }
+                                    }}
                                 >
-                                    {sportOptions.map((sport) => (
-                                        <MenuItem key={sport} value={sport}>
-                                            {sport}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                sx={{
-                                    bgcolor: '#4767F5',
-                                    '&:hover': { bgcolor: '#3852c4' }
-                                }}
-                            >
-                                Generate Campaign
-                            </Button>
+                                    Continue to Athlete Selection
+                                </Button>
+                            </Box>
                         </Box>
-                    </form>
-                </Paper>
-            )}
+                    </Paper>
+                ) : (
+                    <Paper sx={{ p: 4, display: 'flex', justifyContent: 'center' }}>
+                        <CircularProgress />
+                    </Paper>
+                );
 
-            {step === 2 && generatedCampaign && (
-                <Paper sx={{ p: 4 }}>
-                    <Typography variant="h5" gutterBottom>Generated Campaign Strategy</Typography>
+            case 3:
+                return (
+                    <Paper sx={{ p: 4 }}>
+                        <Typography variant="h5" gutterBottom>Select Athletes</Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                            Review and customize your athlete selections
+                        </Typography>
 
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                        {Object.entries(generatedCampaign).map(([key, value]) => (
-                            <Box key={key}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                    <Typography variant="h6" color="primary">
-                                        {key.charAt(0).toUpperCase() + key.slice(1)}
-                                    </Typography>
+                        {loading ? (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+                                <CircularProgress />
+                            </Box>
+                        ) : (
+                            <>
+                                <Grid container spacing={3} sx={{ mb: 4 }}>
+                                    {selectedAthletes.map((athlete, index) => (
+                                        <Grid item xs={12} sm={6} md={4} key={athlete.id}>
+                                            <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                                                <StudentAthleteCard {...athlete} />
+                                                <Button
+                                                    variant="outlined"
+                                                    color="secondary"
+                                                    onClick={() => replaceAthlete(index)}
+                                                    disabled={remainingAthletes.length === 0}
+                                                    sx={{ mt: 2 }}
+                                                    fullWidth
+                                                >
+                                                    Replace Athlete
+                                                </Button>
+                                            </Box>
+                                        </Grid>
+                                    ))}
+                                </Grid>
+
+                                <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between' }}>
+                                    <Button onClick={prevStep} variant="outlined">
+                                        Back
+                                    </Button>
                                     <Button
-                                        size="small"
-                                        onClick={() => {
-                                            const newValue = prompt("Edit " + key, value);
-                                            if (newValue) {
-                                                setGeneratedCampaign({
-                                                    ...generatedCampaign,
-                                                    [key]: newValue
-                                                });
-                                            }
+                                        onClick={nextStep}
+                                        variant="contained"
+                                        disabled={selectedAthletes.length === 0}
+                                        sx={{
+                                            bgcolor: '#4767F5',
+                                            '&:hover': { bgcolor: '#3852c4' }
                                         }}
                                     >
-                                        Edit
+                                        Continue to Review
                                     </Button>
                                 </Box>
-                                <Typography>{value}</Typography>
-                            </Box>
-                        ))}
+                            </>
+                        )}
+                    </Paper>
+                );
 
-                        <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+            case 4:
+                return generatedCampaign ? (
+                    <Paper sx={{ p: 4 }}>
+                        <Typography variant="h5" gutterBottom>Campaign Review</Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                            Review your campaign details before final submission
+                        </Typography>
+
+                        <Card variant="outlined" sx={{ mb: 4, p: 3 }}>
+                            <Typography variant="h6" gutterBottom>
+                                {generatedCampaign.name}
+                            </Typography>
+
+                            <Grid container spacing={2} sx={{ mb: 3 }}>
+                                <Grid item xs={12} md={6}>
+                                    <Typography variant="subtitle2">Campaign Summary</Typography>
+                                    <Typography variant="body2" paragraph>
+                                        {generatedCampaign.campaignSummary}
+                                    </Typography>
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <Typography variant="subtitle2">Budget & Compensation</Typography>
+                                    <Typography variant="body2">
+                                        Max Budget: {generatedCampaign.maxBudget}
+                                    </Typography>
+                                    <Typography variant="body2" paragraph>
+                                        Compensation Type: {generatedCampaign.compensation}
+                                    </Typography>
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <Typography variant="subtitle2">Timeline</Typography>
+                                    <Typography variant="body2">
+                                        Start: {new Date(generatedCampaign.startDate).toLocaleDateString()}
+                                    </Typography>
+                                    <Typography variant="body2" paragraph>
+                                        End: {new Date(generatedCampaign.endDate).toLocaleDateString()}
+                                    </Typography>
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <Typography variant="subtitle2">Sports</Typography>
+                                    <Typography variant="body2" paragraph>
+                                        {generatedCampaign.sports.join(', ')}
+                                    </Typography>
+                                </Grid>
+
+                                {/* Display AI generated fields
+                                {generatedCampaign.contentGuidelines && (
+                                    <Grid item xs={12}>
+                                        <Typography variant="subtitle2">Content Guidelines</Typography>
+                                        <Typography variant="body2" paragraph>
+                                            {generatedCampaign.contentGuidelines}
+                                        </Typography>
+                                    </Grid>
+                                )}
+
+                                {generatedCampaign.objectives && (
+                                    <Grid item xs={12}>
+                                        <Typography variant="subtitle2">Objectives</Typography>
+                                        <Typography variant="body2" paragraph>
+                                            {generatedCampaign.objectives}
+                                        </Typography>
+                                    </Grid>
+                                )}
+
+                                {generatedCampaign.metrics && (
+                                    <Grid item xs={12}>
+                                        <Typography variant="subtitle2">Metrics</Typography>
+                                        <Typography variant="body2" paragraph>
+                                            {generatedCampaign.metrics}
+                                        </Typography>
+                                    </Grid>
+                                )}
+
+                                {generatedCampaign.executiveSummary && (
+                                    <Grid item xs={12}>
+                                        <Typography variant="subtitle2">Executive Summary</Typography>
+                                        <Typography variant="body2" paragraph>
+                                            {generatedCampaign.executiveSummary}
+                                        </Typography>
+                                    </Grid>
+                                )} */}
+                            </Grid>
+
+                            <Typography variant="h6" gutterBottom>
+                                Selected Athletes ({selectedAthletes.length})
+                            </Typography>
+
+                            <Grid container spacing={2}>
+                                {selectedAthletes.map((athlete) => (
+                                    <Grid item xs={12} sm={6} md={4} key={athlete.id}>
+                                        <Card variant="outlined">
+                                            <CardContent>
+                                                <Typography variant="subtitle1">{athlete.name}</Typography>
+                                                <Typography variant="body2" color="text.secondary">
+                                                    {athlete.sport} • {athlete.major}
+                                                </Typography>
+                                            </CardContent>
+                                        </Card>
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        </Card>
+
+                        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between' }}>
                             <Button onClick={prevStep} variant="outlined">
-                                Back to Edit
+                                Back
                             </Button>
                             <Button
-                                onClick={nextStep}
+                                onClick={submitFinalCampaign}
                                 variant="contained"
+                                disabled={loading}
                                 sx={{
                                     bgcolor: '#4767F5',
                                     '&:hover': { bgcolor: '#3852c4' }
                                 }}
                             >
-                                Continue
+                                {loading ? <CircularProgress size={24} /> : 'Create Campaign'}
                             </Button>
                         </Box>
-                    </Box>
-                </Paper>
-            )}
-            {step === 3 && (
-                <Paper sx={{ p: 4 }}>
-                    <Typography variant="h5" gutterBottom>Review and Submit</Typography>
-                    <Typography>Review your campaign strategy and submit it for approval.</Typography>
-                    <Button
-                        onClick={nextStep}
-                        variant="contained"
-                        sx={{
-                            bgcolor: '#4767F5',
-                            '&:hover': { bgcolor: '#3852c4' },
-                            mt: 2
-                        }}
-                    >
-                        Submit Campaign
-                    </Button>
-                </Paper>
-            )}
-            {step === 4 && (
-                <Paper sx={{ p: 4 }}>
-                    <Typography variant="h5" gutterBottom>Campaign Created Successfully!</Typography>
-                    <Typography>Your campaign has been successfully created.</Typography>
-                </Paper>
-            )}
+                    </Paper>
+                ) : (
+                    <Paper sx={{ p: 4, display: 'flex', justifyContent: 'center' }}>
+                        <CircularProgress />
+                    </Paper>
+                );
+
+            default:
+                return null;
+        }
+    };
+
+    return (
+        <Box sx={{ maxWidth: 1000, mx: 'auto', p: { xs: 2, md: 4 } }}>
+            <Typography variant="h4" gutterBottom sx={{ mb: 4 }}>
+                Create a New Marketing Campaign
+            </Typography>
+
+            <Box sx={{ mb: 4 }}>
+                <Box sx={{ display: 'flex', mb: 2 }}>
+                    {[1, 2, 3, 4].map((stepNumber) => (
+                        <Box
+                            key={stepNumber}
+                            sx={{
+                                flex: 1,
+                                height: 8,
+                                bgcolor: stepNumber <= step ? '#4767F5' : '#e0e0e0',
+                                borderRadius: 1,
+                                mx: 0.5
+                            }}
+                        />
+                    ))}
+                </Box>
+
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="body2" color={step >= 1 ? 'primary' : 'text.secondary'}>
+                        Campaign Details
+                    </Typography>
+                    <Typography variant="body2" color={step >= 2 ? 'primary' : 'text.secondary'}>
+                        Review & Edit
+                    </Typography>
+                    <Typography variant="body2" color={step >= 3 ? 'primary' : 'text.secondary'}>
+                        Select Athletes
+                    </Typography>
+                    <Typography variant="body2" color={step >= 4 ? 'primary' : 'text.secondary'}>
+                        Final Review
+                    </Typography>
+                </Box>
+            </Box>
+
+            {renderStep()}
+
+            <Snackbar
+                open={!!error}
+                autoHideDuration={6000}
+                onClose={() => setError(null)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert onClose={() => setError(null)} severity="error" sx={{ width: '100%' }}>
+                    {error}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 }

@@ -2,8 +2,9 @@
 
 import { Typography, Container, Box } from '@mui/material';
 import Image from 'next/image';
+// TODO need to use the useStudetnAthletes hook to get the athletes
 import { athletes } from '@/utils/athletes';
-import AthleteCard from '@/components/AthleteCard';
+import AthleteCard from '@/components/StudentAthleteCard';
 import SignupPage from './signup/signup';
 import { Carousel } from 'react-responsive-carousel';
 import "react-responsive-carousel/lib/styles/carousel.min.css";
