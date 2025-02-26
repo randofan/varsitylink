@@ -28,6 +28,8 @@ export default function CampaignsPage() {
         </Typography>
         {loading ? (
           <Typography>Loading campaigns...</Typography>
+        ) : campaigns.length === 0 ? (
+          <Typography>No current campaigns</Typography>
         ) : (
           <Box sx={{
             display: 'grid',

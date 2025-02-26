@@ -1,12 +1,10 @@
+"use client";
+
 import Image from 'next/image';
 import { Card, CardContent, Typography, Box } from '@mui/material';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import TikTokIcon from '@mui/icons-material/MusicNote';
-import { StudentAthlete as PrismaStudentAthlete } from '@prisma/client';
-
-interface StudentAthlete extends PrismaStudentAthlete {
-  image: string | null;
-}
+import { StudentAthlete } from '@prisma/client';
 
 export default function StudentAthleteCard({
   name,

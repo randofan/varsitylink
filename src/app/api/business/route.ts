@@ -7,6 +7,7 @@ export async function POST(request: Request) {
     const {
       name,
       email,
+      industry,
       missionStatement,
       instagram,
       tiktok,
@@ -20,6 +21,7 @@ export async function POST(request: Request) {
       data: {
         name,
         email,
+        industry,
         missionStatement,
         instagram: instagram || undefined,
         tiktok: tiktok || undefined,

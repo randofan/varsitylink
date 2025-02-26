@@ -50,7 +50,8 @@ export default function SignupWizard() {
             studentAthleteCount: '3',
             sports: [],
             startDate: new Date(),
-            endDate: new Date(new Date().setMonth(new Date().getMonth() + 1))
+            endDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+            businessId: 1  // Hardcoded business ID
         }
     });
 
@@ -74,6 +75,18 @@ export default function SignupWizard() {
         fetchAthletes();
     }, []);
 
+    // Initialize selectedAthletes when we reach step 3
+    useEffect(() => {
+        // Only initialize selectedAthletes when we have athletes loaded and a generated campaign
+        if (athletes.length > 0 && generatedCampaign && step === 3) {
+            // Get the number of athletes to select based on the campaign
+            const count = generatedCampaign.studentAthleteCount || 3;
+            // Use only the number of athletes requested or available
+            const initialSelection = athletes.slice(0, count);
+            setSelectedAthletes(initialSelection);
+        }
+    }, [athletes, generatedCampaign, step]);
+
     const onSubmitForm = async (data: CampaignFormData) => {
         setLoading(true);
         setError(null);
@@ -90,7 +103,7 @@ export default function SignupWizard() {
             if (!response.ok) throw new Error('Failed to generate campaign');
 
             const result = await response.json();
-            setGeneratedCampaign(result);
+            setGeneratedCampaign(result.campaign); // Updated to match our API response structure
             nextStep();
         } catch (err) {
             console.error('Error generating campaign:', err);
@@ -109,8 +122,10 @@ export default function SignupWizard() {
 
             const finalCampaign = {
                 ...generatedCampaign,
-                studentAthletes: selectedAthletes.map(athlete => athlete.id)
+                studentAthletes: selectedAthletes
             };
+
+            console.log(finalCampaign)
 
             const response = await fetch('/api/campaign', {
                 method: 'POST',
@@ -123,7 +138,8 @@ export default function SignupWizard() {
             if (!response.ok) throw new Error('Failed to create campaign');
 
             const result = await response.json();
-            router.push(`/campaign/${result.id}`);
+            const campaignId = result.campaign?.id;
+            router.push(`/business/campaigns/${campaignId}`);
         } catch (err) {
             console.error('Error creating campaign:', err);
             setError('Failed to create campaign. Please try again.');
@@ -149,7 +165,10 @@ export default function SignupWizard() {
 
     const replaceAthlete = (index: number) => {
         if (remainingAthletes.length === 0) return;
+
+        // Find the next athlete who isn't already selected
         const newAthlete = remainingAthletes[0];
+
         setSelectedAthletes(prev => {
             const updated = [...prev];
             updated[index] = newAthlete;
@@ -348,6 +367,7 @@ export default function SignupWizard() {
 
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                             {Object.entries(generatedCampaign).map(([key, value]) => {
+                                // Skip certain fields
                                 if (['id', 'status', 'createdAt', 'businessId', 'studentAthletes'].includes(key)) {
                                     return null;
                                 }
@@ -363,27 +383,84 @@ export default function SignupWizard() {
                                                 {formattedKey}
                                             </Typography>
 
-                                            {typeof value === 'string' && (
+                                            {/* For string values */}
+                                            {typeof value === 'string' &&
+                                                !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(value) && (
+                                                    <TextField
+                                                        value={value}
+                                                        onChange={(e) => updateCampaignField(key, e.target.value)}
+                                                        multiline={value.length > 50}
+                                                        rows={value.length > 100 ? 4 : 2}
+                                                        fullWidth
+                                                    />
+                                                )}
+
+                                            {/* For number values */}
+                                            {typeof value === 'number' && (
                                                 <TextField
+                                                    type="number"
                                                     value={value}
-                                                    onChange={(e) => updateCampaignField(key, e.target.value)}
-                                                    multiline={value.length > 50}
-                                                    rows={value.length > 100 ? 4 : 2}
+                                                    onChange={(e) => updateCampaignField(key, Number(e.target.value))}
                                                     fullWidth
                                                 />
                                             )}
 
-                                            {Array.isArray(value) && (
-                                                <Typography>
-                                                    {value.join(', ')}
-                                                </Typography>
+                                            {/* For boolean values */}
+                                            {typeof value === 'boolean' && (
+                                                <FormControl fullWidth>
+                                                    <InputLabel id={`${key}-label`}>Value</InputLabel>
+                                                    <Select
+                                                        labelId={`${key}-label`}
+                                                        value={value ? "true" : "false"}
+                                                        onChange={(e) => updateCampaignField(key, e.target.value === "true")}
+                                                        label="Value"
+                                                    >
+                                                        <MenuItem value="true">Yes</MenuItem>
+                                                        <MenuItem value="false">No</MenuItem>
+                                                    </Select>
+                                                </FormControl>
                                             )}
 
-                                            {value instanceof Date && (
-                                                <Typography>
-                                                    {new Date(value).toLocaleDateString()}
-                                                </Typography>
+                                            {/* For array values */}
+                                            {Array.isArray(value) && (
+                                                <TextField
+                                                    value={value.join(', ')}
+                                                    onChange={(e) => updateCampaignField(key, e.target.value.split(',').map(item => item.trim()))}
+                                                    helperText="Separate items with commas"
+                                                    fullWidth
+                                                />
                                             )}
+
+                                            {/* For date values */}
+                                            {value instanceof Date && (
+                                                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                                    <DatePicker
+                                                        value={new Date(value)}
+                                                        onChange={(newDate) => updateCampaignField(key, newDate)}
+                                                        slotProps={{
+                                                            textField: {
+                                                                fullWidth: true
+                                                            }
+                                                        }}
+                                                    />
+                                                </LocalizationProvider>
+                                            )}
+
+                                            {/* For date strings */}
+                                            {typeof value === 'string' &&
+                                                /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(value) && (
+                                                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                                        <DatePicker
+                                                            value={new Date(value)}
+                                                            onChange={(newDate) => updateCampaignField(key, newDate ? newDate.toISOString() : null)}
+                                                            slotProps={{
+                                                                textField: {
+                                                                    fullWidth: true
+                                                                }
+                                                            }}
+                                                        />
+                                                    </LocalizationProvider>
+                                                )}
                                         </CardContent>
                                     </Card>
                                 );
@@ -515,12 +592,30 @@ export default function SignupWizard() {
                                     </Typography>
                                 </Grid>
 
-                                {/* Display AI generated fields
-                                {generatedCampaign.contentGuidelines && (
+                                {/* Display new AI generated fields */}
+                                {generatedCampaign.brandTone && (
                                     <Grid item xs={12}>
-                                        <Typography variant="subtitle2">Content Guidelines</Typography>
+                                        <Typography variant="subtitle2">Brand Tone</Typography>
                                         <Typography variant="body2" paragraph>
-                                            {generatedCampaign.contentGuidelines}
+                                            {generatedCampaign.brandTone}
+                                        </Typography>
+                                    </Grid>
+                                )}
+
+                                {generatedCampaign.influencerAngle && (
+                                    <Grid item xs={12}>
+                                        <Typography variant="subtitle2">Influencer Angle</Typography>
+                                        <Typography variant="body2" paragraph>
+                                            {generatedCampaign.influencerAngle}
+                                        </Typography>
+                                    </Grid>
+                                )}
+
+                                {generatedCampaign.brandMentions && (
+                                    <Grid item xs={12}>
+                                        <Typography variant="subtitle2">Brand Mentions</Typography>
+                                        <Typography variant="body2" paragraph>
+                                            {generatedCampaign.brandMentions}
                                         </Typography>
                                     </Grid>
                                 )}
@@ -543,14 +638,14 @@ export default function SignupWizard() {
                                     </Grid>
                                 )}
 
-                                {generatedCampaign.executiveSummary && (
+                                {generatedCampaign.aiSummary && (
                                     <Grid item xs={12}>
                                         <Typography variant="subtitle2">Executive Summary</Typography>
                                         <Typography variant="body2" paragraph>
-                                            {generatedCampaign.executiveSummary}
+                                            {generatedCampaign.aiSummary}
                                         </Typography>
                                     </Grid>
-                                )} */}
+                                )}
                             </Grid>
 
                             <Typography variant="h6" gutterBottom>

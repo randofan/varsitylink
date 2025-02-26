@@ -18,6 +18,7 @@ export interface CampaignFormData {
     sports: string[];
     startDate: Date;
     endDate: Date;
+    businessId: number; // ID of the business creating the campaign
 }
 
 export interface GeneratedCampaign {
