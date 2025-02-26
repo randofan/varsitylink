@@ -1,9 +1,26 @@
 'use client';
 
 import { useForm } from 'react-hook-form';
-import { TextField, Button, Checkbox, FormControlLabel, Typography, Select, MenuItem, FormControl } from '@mui/material';
-import { useState, useEffect, useMemo } from 'react';
-import { StudentAthlete, MarketingOptions } from '@prisma/client';
+import { TextField, Button, Checkbox, FormControlLabel, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { useState } from 'react';
+
+// Define types for our form
+type StudentAthlete = {
+  name: string;
+  email: string;
+  sport: string;
+  age: number;
+  major: string;
+  gender: string;
+  ethnicity: string;
+  instagram?: string;
+  tiktok?: string;
+  pinterest?: string;
+  linkedIn?: string;
+  twitter?: string;
+  industries: string[];
+  marketingOptions: string[];
+};
 
 export default function StudentAthleteSignup() {
   const [submitted, setSubmitted] = useState(false);
@@ -16,26 +33,42 @@ export default function StudentAthleteSignup() {
     },
   });
 
-  useEffect(() => {
-    if (watchMarketingOptions?.includes('Select All')) {
+  const watchMarketingOptions = watch('marketingOptions');
+
+  // Define marketing options
+  const regularMarketingOptions = [
+    'Social Media Posts',
+    'Product Reviews',
+    'Promotional Videos',
+    'In-Person Events',
+    'Brand Ambassador',
+    'Email Marketing'
+  ];
+
+  // Effect to handle "Select All" logic
+  const handleSelectAllChange = (checked: boolean) => {
+    if (checked) {
       setValue('marketingOptions', [...regularMarketingOptions]);
-    } else if (selectAll && watchMarketingOptions?.length !== regularMarketingOptions.length) {
+    } else {
+      setValue('marketingOptions', []);
+    }
+    setSelectAll(checked);
+  };
+
+  // Update selectAll state when individual options change
+  const updateSelectAllState = () => {
+    if (watchMarketingOptions?.length === regularMarketingOptions.length) {
+      setSelectAll(true);
+    } else {
       setSelectAll(false);
     }
-  }, [watchMarketingOptions, setValue, regularMarketingOptions, selectAll]);
+  };
 
-  const onSubmit = async (data: StudentAthleteFormValues) => {
-    const response = await fetch('/api/student-athlete', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (response.ok) {
-      setSubmitted(true);
-      reset();
-    } else {
-      alert('Submission failed. Please try again.');
-    }
+  const onSubmit = async (data: StudentAthlete) => {
+    // TODO just make demo work. We'd actually want to make this hit the route in the future.
+    console.log("Form data submitted:", data);
+    setSubmitted(true);
+    reset();
   };
 
   if (submitted) {
@@ -92,34 +125,38 @@ export default function StudentAthleteSignup() {
   ];
 
   return (
-    <main>
+    <main style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
+      <Typography variant="h4" gutterBottom color="primary">Student Athlete Sign Up</Typography>
+      
       <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <Typography variant="h5" gutterBottom>Personal Information</Typography>
+        
         <TextField
-          id="outlined-basic"
           label="Name"
           variant="outlined"
           placeholder="John Doe"
           {...register('name', { required: true })}
           required
+          fullWidth
         />
+        
         <TextField
-          id="outlined-basic"
           label="Email"
           variant="outlined"
           placeholder="john@example.com"
           {...register('email', { required: true })}
           type="email"
           required
+          fullWidth
         />
-        <FormControl fullWidth>
+        
+        <FormControl fullWidth required>
+          <InputLabel id="sport-label">Sport</InputLabel>
           <Select
-            id="outlined-basic"
+            labelId="sport-label"
             label="Sport"
-            variant="outlined"
             defaultValue=""
             {...register('sport', { required: true })}
-            required
           >
             {sportOptions.map((sport) => (
               <MenuItem key={sport} value={sport}>
@@ -128,31 +165,38 @@ export default function StudentAthleteSignup() {
             ))}
           </Select>
         </FormControl>
+        
         <TextField
-          id="outlined-basic"
           label="Age"
           variant="outlined"
           placeholder="e.g., 20"
-          {...register('age', { valueAsNumber: true, required: true })}
+          {...register('age', { 
+            valueAsNumber: true, 
+            required: true,
+            min: { value: 16, message: "Age must be at least 16" },
+            max: { value: 30, message: "Age must be under 30" }
+          })}
           type="number"
           required
+          fullWidth
         />
+        
         <TextField
-          id="outlined-basic"
           label="Major"
           variant="outlined"
           placeholder="e.g., Business"
           {...register('major', { required: true })}
           required
+          fullWidth
         />
-        <FormControl fullWidth>
+        
+        <FormControl fullWidth required>
+          <InputLabel id="gender-label">Gender</InputLabel>
           <Select
-            id="outlined-basic"
+            labelId="gender-label"
             label="Gender"
-            variant="outlined"
             defaultValue=""
             {...register('gender', { required: true })}
-            required
           >
             {genderOptions.map((option) => (
               <MenuItem key={option} value={option}>
@@ -161,14 +205,14 @@ export default function StudentAthleteSignup() {
             ))}
           </Select>
         </FormControl>
-        <FormControl fullWidth>
+        
+        <FormControl fullWidth required>
+          <InputLabel id="ethnicity-label">Ethnicity</InputLabel>
           <Select
-            id="outlined-basic"
+            labelId="ethnicity-label"
             label="Ethnicity"
-            variant="outlined"
             defaultValue=""
             {...register('ethnicity', { required: true })}
-            required
           >
             {ethnicityOptions.map((option) => (
               <MenuItem key={option} value={option}>
@@ -181,100 +225,107 @@ export default function StudentAthleteSignup() {
         <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
           Social Media Profiles
         </Typography>
+        
         <TextField
-          id="outlined-basic"
           label="Instagram"
           variant="outlined"
           placeholder="e.g., @john_insta"
           {...register('instagram')}
+          fullWidth
         />
+        
         <TextField
-          id="outlined-basic"
           label="TikTok"
           variant="outlined"
           placeholder="e.g., @john_tiktok"
           {...register('tiktok')}
+          fullWidth
         />
+        
         <TextField
-          id="outlined-basic"
           label="Pinterest"
           variant="outlined"
           placeholder="e.g., @john_pinterest"
           {...register('pinterest')}
+          fullWidth
         />
+        
         <TextField
-          id="outlined-basic"
           label="LinkedIn"
           variant="outlined"
           placeholder="LinkedIn profile URL"
           {...register('linkedIn')}
+          fullWidth
         />
+        
         <TextField
-          id="outlined-basic"
           label="X Username"
           variant="outlined"
           placeholder="e.g., @john_x"
           {...register('twitter')}
+          fullWidth
         />
 
         <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
           Preferences
         </Typography>
-        <Typography>Select Industries You&apos;d Work With:</Typography>
-        {industriesList.map((industry) => (
-          <FormControlLabel
-            key={industry}
-            control={
-              <Checkbox
-                value={industry}
-                {...register('industries')}
-              />
-            }
-            label={industry}
-          />
-        ))}
-
-        <Typography sx={{ mt: 2 }}>Marketing Options You&apos;d Be Willing to Do:</Typography>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={selectAll}
-              onChange={(e) => {
-                if (e.target.checked) {
-                  setValue('marketingOptions', [...regularMarketingOptions]);
-                } else {
-                  setValue('marketingOptions', []);
-                }
-                setSelectAll(e.target.checked);
-              }}
+        
+        <Typography variant="subtitle1">Select Industries You&apos;d Work With:</Typography>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginLeft: '1rem' }}>
+          {industriesList.map((industry) => (
+            <FormControlLabel
+              key={industry}
+              control={
+                <Checkbox
+                  value={industry}
+                  {...register('industries')}
+                />
+              }
+              label={industry}
             />
-          }
-          label="Select All"
-        />
+          ))}
+        </div>
 
-        {regularMarketingOptions.map((option) => (
+        <Typography variant="subtitle1" sx={{ mt: 2 }}>Marketing Options You&apos;d Be Willing to Do:</Typography>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginLeft: '1rem' }}>
           <FormControlLabel
-            key={option}
             control={
               <Checkbox
-                checked={watchMarketingOptions?.includes(option)}
-                value={option}
-                {...register('marketingOptions')}
+                checked={selectAll}
+                onChange={(e) => handleSelectAllChange(e.target.checked)}
               />
             }
-            label={option}
+            label="Select All"
           />
-        ))}
+
+          {regularMarketingOptions.map((option) => (
+            <FormControlLabel
+              key={option}
+              control={
+                <Checkbox
+                  checked={watchMarketingOptions?.includes(option)}
+                  value={option}
+                  {...register('marketingOptions', {
+                    onChange: updateSelectAllState
+                  })}
+                />
+              }
+              label={option}
+            />
+          ))}
+        </div>
 
         <Button
           variant="contained"
           type="submit"
           sx={{
-            mt: 2,
+            mt: 4,
             bgcolor: '#4767F5',
             '&:hover': {
               bgcolor: '#3852c4'
-            }
+            },
+            padding: '0.75rem',
+            fontSize: '1rem'
           }}
         >
           Submit
