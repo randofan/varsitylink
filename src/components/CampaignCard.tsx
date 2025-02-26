@@ -25,13 +25,13 @@ export default function CampaignCard(props: Campaign) {
             Status: {props.status}
           </Typography>
           <Typography variant="caption" color="text.secondary" display="block">
-            Created: {props.createdAt}
+            Created: {props.createdAt.toLocaleString()}
           </Typography>
           <Typography variant="caption" color="text.secondary" display="block">
-            Start: {props.startDate} | End: {props.endDate}
+            Start: {props.startDate.toLocaleString()} | End: {props.endDate.toLocaleString()}
           </Typography>
           <Typography variant="body2" sx={{ mt: 1 }}>
-            {props.summary}
+            {props.campaignSummary}
           </Typography>
         </CardContent>
       </Card>

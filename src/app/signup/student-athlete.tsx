@@ -4,23 +4,6 @@ import { useForm } from 'react-hook-form';
 import { TextField, Button, Checkbox, FormControlLabel, Typography, Select, MenuItem, FormControl } from '@mui/material';
 import { useState, useEffect, useMemo } from 'react';
 
-interface StudentAthleteFormValues {
-  name: string;
-  email: string;
-  sport: string;
-  age: number;
-  major: string;
-  gender: string;
-  ethnicity: string;
-  instagram?: string;
-  tiktok?: string;
-  pinterest?: string;
-  linkedIn?: string;
-  xUsername?: string;
-  industries: string[];
-  marketingOptions: string[];
-}
-
 export default function StudentAthleteSignup() {
   const [submitted, setSubmitted] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
@@ -45,7 +28,7 @@ export default function StudentAthleteSignup() {
   }, [watchMarketingOptions, setValue, regularMarketingOptions, selectAll]);
 
   const onSubmit = async (data: StudentAthleteFormValues) => {
-    const response = await fetch('/api/signup/student-athlete', {
+    const response = await fetch('/api/student-athlete', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
