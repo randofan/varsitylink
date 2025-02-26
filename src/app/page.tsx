@@ -2,16 +2,26 @@
 
 import { Typography, Container, Box } from '@mui/material';
 import Image from 'next/image';
-// TODO need to use the useStudetnAthletes hook to get the athletes
-import { athletes } from '@/utils/athletes';
-import AthleteCard from '@/components/StudentAthleteCard';
+import StudentAthleteCard from '@/components/StudentAthleteCard';
 import SignupPage from './signup/signup';
 import { Carousel } from 'react-responsive-carousel';
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import SignupButton from '@/components/SignupButton';
 import Header from '@/components/Header';
+import { useAthletes } from '@/hooks/useStudentAthletes';
+import { StudentAthlete } from '@prisma/client';
 
 export default function Home() {
+  const { athletes, loading, error } = useAthletes();
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error loading athletes</div>;
+  }
+
   return (
     <div>
       <Header />
@@ -117,9 +127,9 @@ export default function Home() {
                     px: 2,
                   }}
                 >
-                  {athletes.slice(i * 3, (i + 1) * 3).map((athlete: AthleteCardProps, index: number) => (
+                  {athletes.slice(i * 3, (i + 1) * 3).map((athlete: StudentAthlete, index: number) => (
                     <Box key={index} sx={{ px: 1 }}>
-                      <AthleteCard {...athlete} />
+                      <StudentAthleteCard {...athlete} image={athlete.image || '/default-image.png'} />
                     </Box>
                   ))}
                 </Box>
