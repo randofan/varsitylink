@@ -3,38 +3,18 @@
 import { useForm } from 'react-hook-form';
 import { TextField, Button, Checkbox, FormControlLabel, Typography, Select, MenuItem, FormControl } from '@mui/material';
 import { useState, useEffect, useMemo } from 'react';
-
-interface StudentAthleteFormValues {
-  name: string;
-  email: string;
-  sport: string;
-  age: number;
-  major: string;
-  gender: string;
-  ethnicity: string;
-  instagram?: string;
-  tiktok?: string;
-  pinterest?: string;
-  linkedIn?: string;
-  xUsername?: string;
-  industries: string[];
-  marketingOptions: string[];
-}
+import { StudentAthlete, MarketingOptions } from '@prisma/client';
 
 export default function StudentAthleteSignup() {
   const [submitted, setSubmitted] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
 
-  const { register, handleSubmit, reset, watch, setValue } = useForm<StudentAthleteFormValues>({
+  const { register, handleSubmit, reset, watch, setValue } = useForm<StudentAthlete>({
     defaultValues: {
       industries: [],
       marketingOptions: [],
     },
   });
-
-  const watchMarketingOptions = watch('marketingOptions');
-  const regularMarketingOptions = useMemo(() => ['Social Media Posts', 'In Person Appearances'], []);
-
 
   useEffect(() => {
     if (watchMarketingOptions?.includes('Select All')) {
@@ -45,7 +25,7 @@ export default function StudentAthleteSignup() {
   }, [watchMarketingOptions, setValue, regularMarketingOptions, selectAll]);
 
   const onSubmit = async (data: StudentAthleteFormValues) => {
-    const response = await fetch('/api/signup/student-athlete', {
+    const response = await fetch('/api/student-athlete', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -234,7 +214,7 @@ export default function StudentAthleteSignup() {
           label="X Username"
           variant="outlined"
           placeholder="e.g., @john_x"
-          {...register('xUsername')}
+          {...register('twitter')}
         />
 
         <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>

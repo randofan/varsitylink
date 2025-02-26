@@ -71,7 +71,7 @@ export default function BusinessSignup() {
       sports: finalSports
     };
 
-    const response = await fetch('/api/signup/business', {
+    const response = await fetch('/api/business', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(finalData),
