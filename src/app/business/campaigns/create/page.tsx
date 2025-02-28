@@ -28,6 +28,8 @@ import StudentAthleteCard from '@/components/StudentAthleteCard';
 import { CampaignFormData, sportsOptions } from '@/utils/types';
 import { StudentAthlete, Campaign, Compensations } from '@prisma/client';
 
+// Import the new LoadingOverlay component
+import LoadingOverlay from '@/components/LoadingOverlay';
 
 export default function SignupWizard() {
     const router = useRouter();
@@ -37,6 +39,8 @@ export default function SignupWizard() {
     const [athletes, setAthletes] = useState<StudentAthlete[]>([]);
     const [selectedAthletes, setSelectedAthletes] = useState<StudentAthlete[]>([]);
     const [generatedCampaign, setGeneratedCampaign] = useState<Campaign | null>(null);
+    const [loadingOverlayVisible, setLoadingOverlayVisible] = useState(false);
+    const [apiCallComplete, setApiCallComplete] = useState(false);
 
     const nextStep = () => setStep(step + 1);
     const prevStep = () => setStep(step - 1);
@@ -87,11 +91,24 @@ export default function SignupWizard() {
         }
     }, [athletes, generatedCampaign, step]);
 
+    // Handler for when the loading overlay completes
+    const handleLoadingComplete = () => {
+        setLoadingOverlayVisible(false);
+        setApiCallComplete(false); // Reset for next time
+        // Only move to the next step if we have a generated campaign
+        if (generatedCampaign) {
+            nextStep();
+        }
+    };
+
     const onSubmitForm = async (data: CampaignFormData) => {
         setLoading(true);
         setError(null);
+        setApiCallComplete(false); // Reset API call status
+        setLoadingOverlayVisible(true); // Show the loading overlay
 
         try {
+            // Make API call
             const response = await fetch('/api/generate', {
                 method: 'POST',
                 headers: {
@@ -104,12 +121,18 @@ export default function SignupWizard() {
 
             const result = await response.json();
             setGeneratedCampaign(result.campaign); // Updated to match our API response structure
-            nextStep();
+
+            // Signal that the API call is complete, but don't hide the overlay yet
+            setApiCallComplete(true);
+
+            // Note: We don't call nextStep() here anymore as the loading overlay handles it
         } catch (err) {
             console.error('Error generating campaign:', err);
             setError('Failed to generate campaign. Please try again.');
+            setLoadingOverlayVisible(false); // Hide overlay on error
         } finally {
             setLoading(false);
+            // Note: Don't hide the overlay here - it will hide when both minimum time elapsed AND API call complete
         }
     };
 
@@ -735,6 +758,13 @@ export default function SignupWizard() {
             </Box>
 
             {renderStep()}
+
+            {/* Add the loading overlay component */}
+            <LoadingOverlay
+                isVisible={loadingOverlayVisible}
+                onComplete={handleLoadingComplete}
+                apiCallComplete={apiCallComplete}
+            />
 
             <Snackbar
                 open={!!error}
