@@ -10,12 +10,13 @@ import SignupButton from '@/components/SignupButton';
 import Header from '@/components/Header';
 import { useAthletes } from '@/hooks/useStudentAthletes';
 import { StudentAthlete } from '@prisma/client';
+import AnimatedLoader from '@/components/HomeLoading';
 
 export default function Home() {
   const { athletes, loading, error } = useAthletes();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <AnimatedLoader />;
   }
 
   if (error) {
