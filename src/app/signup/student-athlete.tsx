@@ -1,12 +1,19 @@
 'use client';
 
 import { useForm } from 'react-hook-form';
-import { TextField, Button, Checkbox, FormControlLabel, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import {
+  TextField, Button, Checkbox, FormControlLabel, Typography,
+  Select, MenuItem, FormControl, InputLabel, Box,
+  CircularProgress
+} from '@mui/material';
 import { useState } from 'react';
 import { StudentAthlete } from '@prisma/client';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 export default function StudentAthleteSignup() {
   const [submitted, setSubmitted] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [imageSelected, setImageSelected] = useState(false);
 
   const { register, handleSubmit, reset } = useForm<StudentAthlete>({
     defaultValues: {
@@ -21,18 +28,48 @@ export default function StudentAthleteSignup() {
     'InPersonAppearances'
   ];
 
+  // Simplify the image change handler
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setImageSelected(!!file);
+  };
+
   const onSubmit = async (data: StudentAthlete) => {
     try {
+      setUploading(true);
+
+      // Get the file input element and its file
+      const fileInput = document.querySelector('#athlete-image') as HTMLInputElement;
+      const file = fileInput?.files?.[0];
+
+      // Create form data to send the file
+      const formData = new FormData();
+
+      // Add all form data to the FormData object
+      Object.keys(data).forEach(key => {
+        // Handle arrays properly
+        if (Array.isArray(data[key as keyof StudentAthlete])) {
+          (data[key as keyof StudentAthlete] as string[]).forEach((value: string) => {
+            formData.append(`${key}[]`, value);
+          });
+        } else {
+          formData.append(key, data[key as keyof typeof data] as string);
+        }
+      });
+
+      // Add the file if it exists
+      if (file) {
+        formData.append('image', file);
+      }
+
+      // Add default values
+      formData.append('compensation[]', 'InKind');
+      formData.append('compensation[]', 'FixedFee');
+      formData.append('introBlurb', data.introBlurb || `Hi, I'm ${data.name}, a ${data.sport} athlete!`);
+
       const response = await fetch('/api/student-athlete', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...data,
-          compensation: ['InKind', 'FixedFee'],
-          introBlurb: data.introBlurb || `Hi, I'm ${data.name}, a ${data.sport} athlete!`,
-        }),
+        body: formData, // Send as FormData instead of JSON
       });
 
       if (!response.ok) {
@@ -44,6 +81,8 @@ export default function StudentAthleteSignup() {
     } catch (error) {
       console.error('Submission error:', error);
       alert('Failed to submit form. Please try again.');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -61,25 +100,32 @@ export default function StudentAthleteSignup() {
   }
 
   const industriesList = [
-    'Restaurants',
     'Supplement Companies',
-    'Sports Equipment',
+    'Hospitality',
+    'Fitness',
+    'Health & Wellness',
+    'Travel',
+    'Food & Beverage',
     'Fashion',
     'Beauty',
   ];
 
   const sportOptions = [
-    'Football',
-    'Basketball',
     'Baseball',
-    'Soccer',
-    'Volleyball',
-    'Track & Field',
-    'Swimming',
-    'Tennis',
+    'Basketball',
+    'Cross Country',
+    'Football',
     'Golf',
-    'Other'
+    'Rowing',
+    'Soccer',
+    'Tennis',
+    'Track & Field',
+    'Beach Volleyball',
+    'Gymnastics',
+    'Softball',
+    'Volleyball'
   ];
+
 
   const genderOptions = [
     'Male',
@@ -193,6 +239,36 @@ export default function StudentAthleteSignup() {
           </Select>
         </FormControl>
 
+        {/* Image upload section */}
+        <Box sx={{ mb: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Typography variant="subtitle1" gutterBottom>Profile Photo</Typography>
+
+          <Button
+            component="label"
+            variant="outlined"
+            startIcon={<CloudUploadIcon />}
+            sx={{ mb: 1 }}
+          >
+            Upload Photo
+            <input
+              id="athlete-image"
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={handleImageChange}
+            />
+          </Button>
+
+          {imageSelected ? (
+            <Typography variant="caption" color="success.main" sx={{ mt: 1 }}>
+              Image successfully uploaded
+            </Typography>
+          ) : (
+            <Typography variant="caption" color="text.secondary">
+              Upload a clear photo of yourself (Max 5MB)
+            </Typography>
+          )}
+        </Box>
         <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
           Social Media Profiles
         </Typography>
@@ -276,6 +352,7 @@ export default function StudentAthleteSignup() {
         <Button
           variant="contained"
           type="submit"
+          disabled={uploading}
           sx={{
             mt: 4,
             bgcolor: '#4767F5',
@@ -286,7 +363,7 @@ export default function StudentAthleteSignup() {
             fontSize: '1rem'
           }}
         >
-          Submit
+          {uploading ? <CircularProgress size={24} color="inherit" /> : 'Submit'}
         </Button>
       </form>
     </main>
