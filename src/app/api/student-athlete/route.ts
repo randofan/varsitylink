@@ -50,6 +50,7 @@ export async function GET(request: Request) {
         where: { id: parseInt(id) },
         include: { campaigns: true }
       });
+      console.log('**athlete:', athlete);
       return NextResponse.json(athlete);
     }
 

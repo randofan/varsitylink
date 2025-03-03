@@ -4,8 +4,10 @@ import { useForm } from 'react-hook-form';
 import { TextField, Button, Checkbox, FormControlLabel, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { useState } from 'react';
 import { StudentAthlete } from '@prisma/client';
+import { useRouter } from 'next/navigation';
 
 export default function StudentAthleteSignup() {
+  const router = useRouter();
   const [submitted, setSubmitted] = useState(false);
 
   const { register, handleSubmit, reset } = useForm<StudentAthlete>({
@@ -39,8 +41,10 @@ export default function StudentAthleteSignup() {
         throw new Error('Failed to submit form');
       }
 
+      const result = await response.json();
       setSubmitted(true);
       reset();
+      router.push(`/student-athlete-profile?id=${result.id}`);
     } catch (error) {
       console.error('Submission error:', error);
       alert('Failed to submit form. Please try again.');
