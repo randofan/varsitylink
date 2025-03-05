@@ -28,15 +28,15 @@ const spin = keyframes`
 `;
 
 const AnimatedLoader = () => {
-    const [loadingText, setLoadingText] = useState('Loading athletes');
+    const [loadingText, setLoadingText] = useState('Loading Your Next NIL Deal...');
 
     useEffect(() => {
         const interval = setInterval(() => {
             setLoadingText(current => {
-                if (current === 'Loading athletes...') return 'Loading athletes';
-                if (current === 'Loading athletes..') return 'Loading athletes...';
-                if (current === 'Loading athletes.') return 'Loading athletes..';
-                return 'Loading athletes.';
+                if (current === 'Loading Your Next NIL Deal...') return 'Loading Your Next NIL Deal...';
+                if (current === 'Loading Your Next NIL Deal...') return 'Loading Your Next NIL Deal...';
+                if (current === 'Loading Your Next NIL Deal...') return 'Loading Your Next NIL Deal...';
+                return 'Loading Your Next NIL Deal...';
             });
         }, 400);
 
