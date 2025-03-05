@@ -36,6 +36,7 @@ import {
     Mail as MailIcon
 } from '@mui/icons-material';
 import { StudentAthlete } from '@prisma/client';
+import MessageDialog from '@/components/MessageDialog';
 
 // Define Campaign type to fix TypeScript errors
 interface Campaign {
@@ -70,6 +71,7 @@ export default function CampaignDashboard() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [tabValue, setTabValue] = useState(0);
+    const [messageDialogOpen, setMessageDialogOpen] = useState(false); // Add state for message dialog
 
     useEffect(() => {
         const fetchCampaign = async () => {
@@ -94,6 +96,14 @@ export default function CampaignDashboard() {
 
     const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
         setTabValue(newValue);
+    };
+
+    const handleOpenMessageDialog = () => {
+        setMessageDialogOpen(true);
+    };
+
+    const handleCloseMessageDialog = () => {
+        setMessageDialogOpen(false);
     };
 
     // Calculate days remaining in the campaign
@@ -201,6 +211,16 @@ export default function CampaignDashboard() {
 
     return (
         <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 2, sm: 3, md: 4 } }}>
+            {/* Message Dialog */}
+            {campaign && (
+                <MessageDialog
+                    open={messageDialogOpen}
+                    onClose={handleCloseMessageDialog}
+                    athletes={campaign.studentAthletes}
+                    campaignName={campaign.name}
+                />
+            )}
+
             {/* Campaign header */}
             <Paper
                 elevation={2}
@@ -502,6 +522,7 @@ export default function CampaignDashboard() {
                                                 '&:hover': { bgcolor: '#3852c4' },
                                                 textTransform: 'none'
                                             }}
+                                            onClick={handleOpenMessageDialog}
                                         >
                                             Message Athletes
                                         </Button>
@@ -584,6 +605,7 @@ export default function CampaignDashboard() {
                                                 '&:hover': { borderColor: '#3852c4' },
                                                 textTransform: 'none'
                                             }}
+                                            onClick={handleOpenMessageDialog}
                                             fullWidth
                                         >
                                             Message

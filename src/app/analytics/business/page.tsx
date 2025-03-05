@@ -77,7 +77,6 @@ const BusinessROIDashboard: React.FC = () => {
       <Typography variant="h4" gutterBottom>
         Business ROI Dashboard
       </Typography>
-
       <Grid container spacing={3}>
         {/* Controls */}
         <Grid item xs={12}>
@@ -111,7 +110,6 @@ const BusinessROIDashboard: React.FC = () => {
             </CardContent>
           </Card>
         </Grid>
-
         <Grid item xs={12} md={4}>
           <Card>
             <CardContent>
@@ -124,7 +122,6 @@ const BusinessROIDashboard: React.FC = () => {
             </CardContent>
           </Card>
         </Grid>
-
         <Grid item xs={12} md={4}>
           <Card>
             <CardContent>

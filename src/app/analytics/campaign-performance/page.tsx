@@ -11,7 +11,6 @@ const CampaignPerformanceDashboard = () => {
     { athlete: 'Alex W.', impressions: 9800, engagement: 1470, clicks: 392, conversions: 56 },
     { athlete: 'Sam T.', impressions: 14300, engagement: 2145, clicks: 715, conversions: 102 }
   ];
-
   // Calculate engagement rates
   const engagementData = campaignData.map(item => ({
     athlete: item.athlete,
@@ -19,7 +18,6 @@ const CampaignPerformanceDashboard = () => {
     'Click Rate': ((item.clicks / item.impressions) * 100).toFixed(1),
     'Conversion Rate': ((item.conversions / item.clicks) * 100).toFixed(1)
   }));
-
   // Data for demographics pie chart
   const demographicData = [
     { name: '18-24', value: 35 },
@@ -49,7 +47,6 @@ const CampaignPerformanceDashboard = () => {
           </BarChart>
         </ResponsiveContainer>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <h3 className="text-xl font-semibold mb-4">Audience Demographics</h3>
@@ -73,7 +70,6 @@ const CampaignPerformanceDashboard = () => {
             </PieChart>
           </ResponsiveContainer>
         </div>
-
         <div>
           <h3 className="text-xl font-semibold mb-4">CAC Comparison</h3>
           <div className="bg-gray-50 p-4 rounded-lg">
