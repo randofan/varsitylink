@@ -3,14 +3,12 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
   Typography,
   TextField,
   Button,
   IconButton,
   Box,
   Avatar,
-  Divider,
   Paper,
   List,
   ListItem,
@@ -42,25 +40,25 @@ interface MessageDialogProps {
 const MessageDialog: React.FC<MessageDialogProps> = ({ open, onClose, athletes, campaignName }) => {
   const [message, setMessage] = useState('');
   const [selectedAthlete, setSelectedAthlete] = useState<StudentAthlete | null>(null);
-  
+
   // Mock conversation history
-  const [conversations, setConversations] = useState<Record<string, Array<{text: string, fromBusiness: boolean, timestamp: Date}>>>({});
+  const [conversations, setConversations] = useState<Record<string, Array<{ text: string, fromBusiness: boolean, timestamp: Date }>>>({});
 
   const handleSend = () => {
     if (!message.trim() || !selectedAthlete) return;
-    
+
     // Add message to conversation history
     const athleteId = String(selectedAthlete.id);  // Convert ID to string for use as object key
     const newMessage = { text: message, fromBusiness: true, timestamp: new Date() };
-    
+
     setConversations(prev => ({
       ...prev,
       [athleteId]: [...(prev[athleteId] || []), newMessage]
     }));
-    
+
     // Clear input
     setMessage('');
-    
+
     // Simulate response (optional)
     setTimeout(() => {
       const responses = [
@@ -70,7 +68,7 @@ const MessageDialog: React.FC<MessageDialogProps> = ({ open, onClose, athletes, 
         "Can you provide more details about the content requirements?"
       ];
       const responseText = responses[Math.floor(Math.random() * responses.length)];
-      
+
       setConversations(prev => ({
         ...prev,
         [athleteId]: [...(prev[athleteId] || []), {
@@ -88,7 +86,7 @@ const MessageDialog: React.FC<MessageDialogProps> = ({ open, onClose, athletes, 
 
   const handleAthleteSelect = (athlete: StudentAthlete) => {
     setSelectedAthlete(athlete);
-    
+
     // Initialize conversation if it doesn't exist
     const athleteId = String(athlete.id);  // Convert ID to string for use as object key
     if (!conversations[athleteId]) {
@@ -100,10 +98,10 @@ const MessageDialog: React.FC<MessageDialogProps> = ({ open, onClose, athletes, 
   };
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      maxWidth="md" 
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
       fullWidth
       PaperProps={{
         sx: {
@@ -113,10 +111,10 @@ const MessageDialog: React.FC<MessageDialogProps> = ({ open, onClose, athletes, 
         }
       }}
     >
-      <DialogTitle 
+      <DialogTitle
         component="div"
-        sx={{ 
-          bgcolor: '#4767F5', 
+        sx={{
+          bgcolor: '#4767F5',
           color: 'white',
           display: 'flex',
           justifyContent: 'space-between',
@@ -125,14 +123,14 @@ const MessageDialog: React.FC<MessageDialogProps> = ({ open, onClose, athletes, 
           py: 2
         }}
       >
-        <Typography 
+        <Typography
           variant="subtitle1"
-          component="div" 
+          component="div"
           fontWeight="medium"
         >
           {selectedAthlete ? `Message: ${selectedAthlete.name}` : 'Message Athletes'}
         </Typography>
-        <IconButton 
+        <IconButton
           onClick={onClose}
           size="small"
           sx={{ color: 'white' }}
@@ -140,12 +138,12 @@ const MessageDialog: React.FC<MessageDialogProps> = ({ open, onClose, athletes, 
           <CloseIcon />
         </IconButton>
       </DialogTitle>
-      
+
       <DialogContent sx={{ p: 0, display: 'flex', height: '100%', overflow: 'hidden' }}>
         {/* Left sidebar - Athletes list */}
-        <Box sx={{ 
-          width: '250px', 
-          borderRight: '1px solid #eee', 
+        <Box sx={{
+          width: '250px',
+          borderRight: '1px solid #eee',
           overflowY: 'auto',
           height: '100%'
         }}>
@@ -157,10 +155,10 @@ const MessageDialog: React.FC<MessageDialogProps> = ({ open, onClose, athletes, 
               {athletes.length} Athletes
             </Typography>
           </Box>
-          
+
           <List sx={{ p: 0 }}>
             {athletes.map((athlete) => (
-              <ListItem 
+              <ListItem
                 component="div"
                 key={athlete.id}
                 disablePadding
@@ -177,36 +175,36 @@ const MessageDialog: React.FC<MessageDialogProps> = ({ open, onClose, athletes, 
                     }
                   }}
                 >
-                <ListItemAvatar>
-                  <Avatar 
-                    src={athlete.image || undefined}
-                    alt={athlete.name || ''}
-                    sx={{ bgcolor: '#4767F5' }}
-                  >
-                    {athlete.name?.[0] || ''}
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText 
-                  primary={athlete.name || ''}
-                  secondary={athlete.sport || ''}
-                  primaryTypographyProps={{
-                    fontWeight: 'medium',
-                    variant: 'body2'
-                  }}
-                  secondaryTypographyProps={{
-                    variant: 'caption'
-                  }}
-                />
-                              </ListItemButton>
+                  <ListItemAvatar>
+                    <Avatar
+                      src={athlete.image || undefined}
+                      alt={athlete.name || ''}
+                      sx={{ bgcolor: '#4767F5' }}
+                    >
+                      {athlete.name?.[0] || ''}
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={athlete.name || ''}
+                    secondary={athlete.sport || ''}
+                    primaryTypographyProps={{
+                      fontWeight: 'medium',
+                      variant: 'body2'
+                    }}
+                    secondaryTypographyProps={{
+                      variant: 'caption'
+                    }}
+                  />
+                </ListItemButton>
               </ListItem>
             ))}
           </List>
         </Box>
-        
+
         {/* Right side - Conversation area */}
-        <Box sx={{ 
-          flexGrow: 1, 
-          display: 'flex', 
+        <Box sx={{
+          flexGrow: 1,
+          display: 'flex',
           flexDirection: 'column',
           height: '100%',
           overflow: 'hidden',
@@ -215,19 +213,19 @@ const MessageDialog: React.FC<MessageDialogProps> = ({ open, onClose, athletes, 
           {selectedAthlete ? (
             <>
               {/* Messages area */}
-              <Box sx={{ 
-                flexGrow: 1, 
-                p: 2, 
+              <Box sx={{
+                flexGrow: 1,
+                p: 2,
                 overflowY: 'auto',
                 display: 'flex',
                 flexDirection: 'column'
               }}>
                 {/* Welcome message if no messages yet */}
                 {(!conversations[selectedAthlete.id] || conversations[selectedAthlete.id].length === 0) && (
-                  <Box sx={{ 
-                    textAlign: 'center', 
+                  <Box sx={{
+                    textAlign: 'center',
                     mt: 4,
-                    p: 3, 
+                    p: 3,
                     bgcolor: 'white',
                     borderRadius: 2,
                     mx: 'auto',
@@ -238,11 +236,11 @@ const MessageDialog: React.FC<MessageDialogProps> = ({ open, onClose, athletes, 
                       Start Messaging {selectedAthlete.name}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      This is the beginning of your conversation for the campaign "{campaignName}".
+                      This is the beginning of your conversation for the campaign &quot;{campaignName}&quot;.
                     </Typography>
                   </Box>
                 )}
-                
+
                 {/* Message bubbles */}
                 {conversations[selectedAthlete.id]?.map((msg, idx) => (
                   <Box
@@ -265,11 +263,11 @@ const MessageDialog: React.FC<MessageDialogProps> = ({ open, onClose, athletes, 
                     >
                       <Typography variant="body2">{msg.text}</Typography>
                     </Paper>
-                    <Typography 
-                      variant="caption" 
-                      sx={{ 
-                        display: 'block', 
-                        mt: 0.5, 
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        display: 'block',
+                        mt: 0.5,
                         ml: msg.fromBusiness ? 0 : 2,
                         mr: msg.fromBusiness ? 2 : 0,
                         textAlign: msg.fromBusiness ? 'right' : 'left',
@@ -281,11 +279,11 @@ const MessageDialog: React.FC<MessageDialogProps> = ({ open, onClose, athletes, 
                   </Box>
                 ))}
               </Box>
-              
+
               {/* Message input area */}
-              <Box sx={{ 
-                p: 2, 
-                bgcolor: 'white', 
+              <Box sx={{
+                p: 2,
+                bgcolor: 'white',
                 borderTop: '1px solid #eee',
                 display: 'flex',
                 alignItems: 'center'
@@ -344,11 +342,11 @@ const MessageDialog: React.FC<MessageDialogProps> = ({ open, onClose, athletes, 
             </>
           ) : (
             // No athlete selected state
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              height: '100%', 
+            <Box sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
               flexDirection: 'column',
               p: 4
             }}>
