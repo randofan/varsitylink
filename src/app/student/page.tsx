@@ -6,6 +6,8 @@ import BusinessHeader from '@/components/BusinessHeader';
 import { useCampaigns } from '@/hooks/useCampaigns';
 
 export default function CampaignsPage() {
+  // TODO the useCampaign hook fetches data based on business ID.
+  // how does this work for students?
   const { campaigns, loading, error } = useCampaigns(1);
 
   if (error) {

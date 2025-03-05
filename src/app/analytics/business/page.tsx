@@ -16,15 +16,15 @@ import {
   Cell
 } from 'recharts';
 
-import { 
-  Box, 
-  Card, 
-  CardContent, 
-  Typography, 
-  Grid, 
-  Select, 
-  MenuItem, 
-  FormControl, 
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  Select,
+  MenuItem,
+  FormControl,
   InputLabel,
   SelectChangeEvent,
   Paper
@@ -70,7 +70,6 @@ const BusinessROIDashboard: React.FC = () => {
   // Calculate overall ROI
   const totalInvestment = roiData.reduce((sum, item) => sum + item.investment, 0);
   const totalRevenue = roiData.reduce((sum, item) => sum + item.revenue, 0);
-  const totalProfit = roiData.reduce((sum, item) => sum + item.profit, 0);
   const overallROI = calculateROI(totalInvestment, totalRevenue).toFixed(2);
 
   return (
@@ -78,7 +77,6 @@ const BusinessROIDashboard: React.FC = () => {
       <Typography variant="h4" gutterBottom>
         Business ROI Dashboard
       </Typography>
-      
       <Grid container spacing={3}>
         {/* Controls */}
         <Grid item xs={12}>
@@ -112,7 +110,6 @@ const BusinessROIDashboard: React.FC = () => {
             </CardContent>
           </Card>
         </Grid>
-        
         <Grid item xs={12} md={4}>
           <Card>
             <CardContent>
@@ -125,7 +122,6 @@ const BusinessROIDashboard: React.FC = () => {
             </CardContent>
           </Card>
         </Grid>
-        
         <Grid item xs={12} md={4}>
           <Card>
             <CardContent>
@@ -155,11 +151,11 @@ const BusinessROIDashboard: React.FC = () => {
                 <YAxis />
                 <Tooltip formatter={(value) => [`${value}%`, 'ROI']} />
                 <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="roi" 
-                  stroke="#8884d8" 
-                  activeDot={{ r: 8 }} 
+                <Line
+                  type="monotone"
+                  dataKey="roi"
+                  stroke="#8884d8"
+                  activeDot={{ r: 8 }}
                 />
               </LineChart>
             </ResponsiveContainer>

@@ -11,7 +11,6 @@ const CampaignPerformanceDashboard = () => {
     { athlete: 'Alex W.', impressions: 9800, engagement: 1470, clicks: 392, conversions: 56 },
     { athlete: 'Sam T.', impressions: 14300, engagement: 2145, clicks: 715, conversions: 102 }
   ];
-  
   // Calculate engagement rates
   const engagementData = campaignData.map(item => ({
     athlete: item.athlete,
@@ -19,7 +18,6 @@ const CampaignPerformanceDashboard = () => {
     'Click Rate': ((item.clicks / item.impressions) * 100).toFixed(1),
     'Conversion Rate': ((item.conversions / item.clicks) * 100).toFixed(1)
   }));
-  
   // Data for demographics pie chart
   const demographicData = [
     { name: '18-24', value: 35 },
@@ -27,13 +25,13 @@ const CampaignPerformanceDashboard = () => {
     { name: '35-44', value: 15 },
     { name: '45+', value: 10 }
   ];
-  
+
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
-  
+
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold mb-6">Campaign Performance Dashboard</h2>
-      
+
       <div className="mb-8">
         <h3 className="text-xl font-semibold mb-4">Engagement Metrics by Athlete</h3>
         <ResponsiveContainer width="100%" height={300}>
@@ -49,7 +47,6 @@ const CampaignPerformanceDashboard = () => {
           </BarChart>
         </ResponsiveContainer>
       </div>
-      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <h3 className="text-xl font-semibold mb-4">Audience Demographics</h3>
@@ -63,7 +60,7 @@ const CampaignPerformanceDashboard = () => {
                 outerRadius={100}
                 fill="#8884d8"
                 dataKey="value"
-                label={({name, percent}) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
               >
                 {demographicData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -73,7 +70,6 @@ const CampaignPerformanceDashboard = () => {
             </PieChart>
           </ResponsiveContainer>
         </div>
-        
         <div>
           <h3 className="text-xl font-semibold mb-4">CAC Comparison</h3>
           <div className="bg-gray-50 p-4 rounded-lg">
