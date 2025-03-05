@@ -130,7 +130,7 @@ export default function Home() {
                 >
                   {athletes.slice(i * 3, (i + 1) * 3).map((athlete: StudentAthlete, index: number) => (
                     <Box key={index} sx={{ px: 1 }}>
-                      <StudentAthleteCard {...athlete} image={athlete.image || '/default-image.png'} />
+                      <StudentAthleteCard {...athlete} image={athlete.image || '/default-profile.jpg'} />
                     </Box>
                   ))}
                 </Box>

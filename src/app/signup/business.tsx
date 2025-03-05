@@ -18,6 +18,7 @@ interface BusinessFormValues {
   name: string;
   email: string;
   missionStatement: string;
+  industry: string;
   socialLinks: string;
   website: string;
   campaignSummary: string;
@@ -128,6 +129,14 @@ export default function BusinessSignup() {
           {...register('missionStatement', { required: true })}
           multiline
           minRows={3}
+          required
+        />
+        <TextField
+          id="outlined-basic"
+          label="Industry Domain"
+          variant="outlined"
+          placeholder="e.g., Fashion, Tech, Food"
+          {...register('industry', { required: true })}
           required
         />
         <TextField

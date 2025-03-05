@@ -27,9 +27,8 @@ import { Controller, useForm } from 'react-hook-form';
 import StudentAthleteCard from '@/components/StudentAthleteCard';
 import { CampaignFormData, sportsOptions } from '@/utils/types';
 import { StudentAthlete, Campaign, Compensations } from '@prisma/client';
-
-// Import the new LoadingOverlay component
 import LoadingOverlay from '@/components/LoadingOverlay';
+import MatchingOverlay from '@/components/MatchingOverlay';
 
 export default function SignupWizard() {
     const router = useRouter();
@@ -41,8 +40,38 @@ export default function SignupWizard() {
     const [generatedCampaign, setGeneratedCampaign] = useState<Campaign | null>(null);
     const [loadingOverlayVisible, setLoadingOverlayVisible] = useState(false);
     const [apiCallComplete, setApiCallComplete] = useState(false);
+    const [matchingOverlayVisible, setMatchingOverlayVisible] = useState(false);
+    const [matchingApiComplete, setMatchingApiComplete] = useState(false);
 
-    const nextStep = () => setStep(step + 1);
+    const nextStep = async () => {
+        if (step === 2) {
+            setMatchingOverlayVisible(true);
+            setMatchingApiComplete(false);
+
+            try {
+                // Call your athlete matching API here
+                const response = await fetch('/api/match-athletes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ campaign: generatedCampaign }),
+                });
+
+                if (!response.ok) throw new Error('Failed to match athletes');
+                const data = await response.json();
+
+                // Update your athletes state with the matched athletes
+                setAthletes(data.matches);
+                setMatchingApiComplete(true);
+            } catch (error) {
+                console.error('Error matching athletes:', error);
+                setMatchingOverlayVisible(false);
+                setError('Failed to match athletes');
+            }
+        } else {
+            setStep(step + 1);
+        }
+    };
+
     const prevStep = () => setStep(step - 1);
 
     const { control, handleSubmit } = useForm<CampaignFormData>({
@@ -99,6 +128,12 @@ export default function SignupWizard() {
         if (generatedCampaign) {
             nextStep();
         }
+    };
+
+    const handleMatchingComplete = () => {
+        setMatchingOverlayVisible(false);
+        setMatchingApiComplete(false);
+        setStep(step + 1);
     };
 
     const onSubmitForm = async (data: CampaignFormData) => {
@@ -764,6 +799,13 @@ export default function SignupWizard() {
                 isVisible={loadingOverlayVisible}
                 onComplete={handleLoadingComplete}
                 apiCallComplete={apiCallComplete}
+            />
+
+            {/* Add the matching overlay */}
+            <MatchingOverlay
+                isVisible={matchingOverlayVisible}
+                onComplete={handleMatchingComplete}
+                apiCallComplete={matchingApiComplete}
             />
 
             <Snackbar

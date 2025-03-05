@@ -43,7 +43,7 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ isVisible, onComplete, 
   const startTimeRef = useRef<number>(0);
   const minimumTimePassed = useRef<boolean>(false);
   const completionHandled = useRef<boolean>(false);
-  
+
   // Reset state when visibility changes
   useEffect(() => {
     if (isVisible) {
@@ -58,14 +58,14 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ isVisible, onComplete, 
   // Handle progress updates
   useEffect(() => {
     if (!isVisible) return;
-    
+
     const progressInterval = setInterval(() => {
       const elapsedTime = Date.now() - startTimeRef.current;
-      
+
       // Check if minimum time has passed (10 seconds)
       if (elapsedTime >= 10000 && !minimumTimePassed.current) {
         minimumTimePassed.current = true;
-        
+
         // If API is also complete, we can finish
         if (apiCallComplete && !completionHandled.current) {
           completionHandled.current = true;
@@ -75,12 +75,12 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ isVisible, onComplete, 
           return;
         }
       }
-      
+
       // Update progress value
       setProgressValue(prev => {
         // If we're already at 100%, stay there
         if (prev >= 100) return 100;
-        
+
         // If API call is complete and minimum time passed, quickly reach 100%
         if (apiCallComplete && minimumTimePassed.current) {
           const newValue = prev + 5; // Fast completion
@@ -90,37 +90,37 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ isVisible, onComplete, 
           }
           return Math.min(newValue, 100);
         }
-        
+
         // If API call is complete but min time not passed, go to 95% max
         if (apiCallComplete) {
           return Math.min(prev + 0.8, 95);
         }
-        
+
         // Normal progress: calculate based on elapsed time (0-95% over 10 seconds)
         const targetProgress = Math.min((elapsedTime / 10000) * 95, 95);
         // Smooth approach to target
         return prev + Math.max(0.1, (targetProgress - prev) * 0.1);
       });
     }, 50);
-    
+
     return () => clearInterval(progressInterval);
   }, [isVisible, apiCallComplete, onComplete]);
-  
+
   // Handle message change
   useEffect(() => {
     if (!isVisible) return;
-    
+
     const messageTimer = setTimeout(() => {
       setMessage("Generating a campaign");
     }, 5000); // Change message after 5 seconds
-    
+
     return () => clearTimeout(messageTimer);
   }, [isVisible]);
-  
+
   // Safety timeout - don't let loading go beyond 15 seconds total
   useEffect(() => {
     if (!isVisible) return;
-    
+
     const safetyTimeout = setTimeout(() => {
       if (!completionHandled.current) {
         completionHandled.current = true;
@@ -128,10 +128,10 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ isVisible, onComplete, 
         setTimeout(onComplete, 500);
       }
     }, 15000);
-    
+
     return () => clearTimeout(safetyTimeout);
   }, [isVisible, onComplete]);
-  
+
   // Watch for API completion after minimum time has passed
   useEffect(() => {
     if (isVisible && apiCallComplete && minimumTimePassed.current && !completionHandled.current) {
@@ -140,9 +140,9 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ isVisible, onComplete, 
       setTimeout(onComplete, 500);
     }
   }, [apiCallComplete, isVisible, onComplete]);
-  
+
   if (!isVisible) return null;
-  
+
   return (
     <Box
       sx={{
@@ -184,7 +184,7 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ isVisible, onComplete, 
             animation: `${rotate} 2s linear infinite`,
           }}
         />
-        
+
         {/* Inner rotating circle (opposite direction) */}
         <Box
           sx={{
@@ -198,7 +198,7 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ isVisible, onComplete, 
             animation: `${rotate} 1.5s linear infinite reverse`,
           }}
         />
-        
+
         {/* Pulsing center circle */}
         <Box
           sx={{
@@ -224,10 +224,10 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ isVisible, onComplete, 
           </Typography>
         </Box>
       </Box>
-      
+
       {/* Message */}
-      <Typography 
-        variant="h5" 
+      <Typography
+        variant="h5"
         sx={{
           mt: 4,
           fontWeight: 500,
@@ -241,7 +241,7 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ isVisible, onComplete, 
       >
         {message}
       </Typography>
-      
+
       {/* Progress bar */}
       <Box
         sx={{
