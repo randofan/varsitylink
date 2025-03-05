@@ -4,10 +4,15 @@ import { Box, Container, Typography } from '@mui/material';
 import CampaignCard from '@/components/CampaignCard';
 import BusinessHeader from '@/components/BusinessHeader';
 import { useCampaigns } from '@/hooks/useCampaigns';
+import AnimatedLoader from '@/components/HomeLoading';
 
 export default function CampaignsPage() {
   const { campaigns, loading, error } = useCampaigns(1);
-
+  
+  if (loading) {
+    return <AnimatedLoader />;
+  }
+  
   if (error) {
     return (
       <>
