@@ -15,7 +15,6 @@ export async function POST(request: Request) {
       campaignSummary,
       maxBudget,
       compensation,
-      studentAthleteCount,
       sports,
       startDate,
       endDate,
@@ -49,7 +48,6 @@ export async function POST(request: Request) {
       - Campaign Summary: ${campaignSummary}
       - Budget: ${maxBudget}
       - Compensation Type: ${compensation}
-      - Athlete Count: ${studentAthleteCount}
       - Sports: ${sports.join(', ')}
       - Campaign Duration: ${startDate} to ${endDate}
     `;
@@ -78,6 +76,7 @@ export async function POST(request: Request) {
     const impressionsGoal = campaignData.impressionsGoal ? Number(campaignData.impressionsGoal) : null;
     const targetAudienceMin = Number(campaignData.targetAudienceMin);
     const targetAudienceMax = Number(campaignData.targetAudienceMax);
+    const studentAthleteCount = Number(campaignData.studentAthleteCount) || 3; // Default to 3 if not provided
 
     // Map form data and AI response to a Campaign object
     const campaign: Omit<Campaign, 'id' | 'businessId' | 'createdAt'> = {
@@ -85,12 +84,10 @@ export async function POST(request: Request) {
       campaignSummary,
       maxBudget,
       compensation: compensation,
-      studentAthleteCount: typeof studentAthleteCount === 'string' ?
-        parseInt(studentAthleteCount, 10) :
-        studentAthleteCount,
-        sports,
-        startDate,
-        endDate,
+      studentAthleteCount,
+      sports,
+      startDate,
+      endDate,
 
       aiSummary: campaignData.aiSummary || '',
       objectives: campaignData.objectives || '',

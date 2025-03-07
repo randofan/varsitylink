@@ -7,7 +7,7 @@ import SignupPage from './signup/signup';
 import { Carousel } from 'react-responsive-carousel';
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import SignupButton from '@/components/SignupButton';
-import Header from '@/components/Header';
+import Header from '@/components/HomeHeader';
 import { useAthletes } from '@/hooks/useStudentAthletes';
 import { StudentAthlete } from '@prisma/client';
 import AnimatedLoader from '@/components/HomeLoading';

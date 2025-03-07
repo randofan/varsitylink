@@ -14,7 +14,6 @@ export interface CampaignFormData {
     campaignSummary: string;
     maxBudget: string;  // can be $$$ amount or in-kind
     compensation: Compensations;
-    studentAthleteCount: string;  // can be a number of 'any', in which case we'll choose
     sports: string[];
     startDate: Date;
     endDate: Date;
@@ -32,14 +31,18 @@ export interface GeneratedCampaign {
 }
 
 export const sportsOptions = [
+    'Rowing',
+    'Beach Volleyball',
+    'Gymnastics',
+    'Softball',
+    'Golf',
+    'Tennis',
+    'Track and Field',
+    'Wrestling',
+    'Volleyball',
+    'Soccer',
     'Baseball',
     'Basketball',
     'Football',
-    'Golf',
-    'Soccer',
-    'Tennis',
-    'Track and Field',
-    'Volleyball',
-    'Wrestling',
     'Other'
 ];

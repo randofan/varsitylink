@@ -2,7 +2,7 @@
 
 import { Container, Typography } from '@mui/material';
 import SignupPage from "./signup";
-import Header from '@/components/Header';
+import Header from '@/components/HomeHeader';
 
 export default function Signup() {
     return (

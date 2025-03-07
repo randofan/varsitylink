@@ -29,6 +29,8 @@ import { CampaignFormData, sportsOptions } from '@/utils/types';
 import { StudentAthlete, Campaign, Compensations } from '@prisma/client';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import MatchingOverlay from '@/components/MatchingOverlay';
+import StudentAthleteModal from '@/components/StudentAthleteModal';
+import { formatCompensationType } from '@/utils/helpers';
 
 export default function SignupWizard() {
     const router = useRouter();
@@ -42,6 +44,8 @@ export default function SignupWizard() {
     const [apiCallComplete, setApiCallComplete] = useState(false);
     const [matchingOverlayVisible, setMatchingOverlayVisible] = useState(false);
     const [matchingApiComplete, setMatchingApiComplete] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedAthleteForModal, setSelectedAthleteForModal] = useState<StudentAthlete | null>(null);
 
     const nextStep = async () => {
         if (step === 2) {
@@ -80,7 +84,6 @@ export default function SignupWizard() {
             campaignSummary: '',
             maxBudget: '',
             compensation: Compensations.FixedFee,
-            studentAthleteCount: '3',
             sports: [],
             startDate: new Date(),
             endDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
@@ -234,6 +237,15 @@ export default function SignupWizard() {
         });
     };
 
+    const handleOpenAthleteModal = (athlete: StudentAthlete) => {
+        setSelectedAthleteForModal(athlete);
+        setModalOpen(true);
+    };
+
+    const handleCloseAthleteModal = () => {
+        setModalOpen(false);
+    };
+
     const renderStep = () => {
         switch (step) {
             case 1:
@@ -300,31 +312,10 @@ export default function SignupWizard() {
                                             >
                                                 {Object.values(Compensations).map((option) => (
                                                     <MenuItem key={option} value={option}>
-                                                        {option}
+                                                        {formatCompensationType(option)}
                                                     </MenuItem>
                                                 ))}
                                             </Select>
-                                        </FormControl>
-                                    )}
-                                />
-                                <Controller
-                                    name="studentAthleteCount"
-                                    control={control}
-                                    rules={{ required: 'Number of athletes is required' }}
-                                    render={({ field, fieldState }) => (
-                                        <FormControl fullWidth error={!!fieldState.error}>
-                                            <InputLabel>Student Athlete Count</InputLabel>
-                                            <Select
-                                                {...field}
-                                                label="Student Athlete Count"
-                                            >
-                                                {['1', '2', '3', '4', '5', '6', 'any'].map((option) => (
-                                                    <MenuItem key={option} value={option}>
-                                                        {option === 'any' ? 'Any number of athletes' : `${option} athlete${option === '1' ? '' : 's'}`}
-                                                    </MenuItem>
-                                                ))}
-                                            </Select>
-                                            {fieldState.error && <FormHelperText>{fieldState.error.message}</FormHelperText>}
                                         </FormControl>
                                     )}
                                 />
@@ -568,7 +559,20 @@ export default function SignupWizard() {
                                     {selectedAthletes.map((athlete, index) => (
                                         <Grid item xs={12} sm={6} md={4} key={athlete.id}>
                                             <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                                                <StudentAthleteCard {...athlete} />
+                                                <Box 
+                                                    onClick={() => handleOpenAthleteModal(athlete)}
+                                                    sx={{ 
+                                                        cursor: 'pointer',
+                                                        '& > *': { // Target direct children
+                                                            transition: 'transform 0.2s',
+                                                        },
+                                                        '&:hover > *': { // Apply hover effect to direct children
+                                                            transform: 'scale(1.02)',
+                                                        }
+                                                    }}
+                                                >
+                                                    <StudentAthleteCard {...athlete} isClickable />
+                                                </Box>
                                                 <Button
                                                     variant="outlined"
                                                     color="secondary"
@@ -631,7 +635,7 @@ export default function SignupWizard() {
                                         Max Budget: {generatedCampaign.maxBudget}
                                     </Typography>
                                     <Typography variant="body2" paragraph>
-                                        Compensation Type: {generatedCampaign.compensation}
+                                        Compensation Type: {formatCompensationType(generatedCampaign.compensation)}
                                     </Typography>
                                 </Grid>
                                 <Grid item xs={12} md={6}>
@@ -806,6 +810,12 @@ export default function SignupWizard() {
                 isVisible={matchingOverlayVisible}
                 onComplete={handleMatchingComplete}
                 apiCallComplete={matchingApiComplete}
+            />
+
+            <StudentAthleteModal
+                athlete={selectedAthleteForModal}
+                open={modalOpen}
+                onClose={handleCloseAthleteModal}
             />
 
             <Snackbar

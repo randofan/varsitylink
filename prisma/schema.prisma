@@ -46,10 +46,15 @@ model StudentAthlete {
 
   // Social media
   instagram        String?
+  instagramFollowers Int?
   tiktok           String?
+  tiktokFollowers  Int?
   pinterest        String?
+  pinterestFollowers Int?
   linkedIn         String?
+  linkedInFollowers Int?
   twitter          String?
+  twitterFollowers Int?
 
   // Campaign preferences
   industries       String[]
