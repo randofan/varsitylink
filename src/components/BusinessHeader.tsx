@@ -30,7 +30,7 @@ export default function BusinessHeader() {
             <NotificationsIcon />
           </IconButton>
           <IconButton>
-            <Avatar alt="Profile" src="/profile.jpg" />
+            <Avatar alt="Profile" src="/default-profile.jpg" />
           </IconButton>
         </Box>
       </Toolbar>

@@ -387,7 +387,7 @@ export default function CampaignDashboard() {
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 2 }}>
                             <Chip
                                 icon={<EventIcon sx={{ color: 'white !important' }} />}
-                                label={`${formatDate(campaign.startDate.toLocaleDateString())} - ${formatDate(campaign.endDate.toLocaleDateString())}`}
+                                label={`${formatDate(new Date(campaign.startDate).toLocaleDateString())} - ${formatDate(new Date(campaign.endDate).toLocaleDateString())}`}
                                 sx={{
                                     bgcolor: 'rgba(255,255,255,0.2)',
                                     color: 'white',
@@ -563,7 +563,7 @@ export default function CampaignDashboard() {
                                                     Campaign Start
                                                 </Typography>
                                                 <Typography variant="body2" color="text.secondary">
-                                                    {formatDate(campaign.startDate.toLocaleDateString())}
+                                                    {formatDate(new Date(campaign.startDate).toLocaleDateString())}
                                                 </Typography>
                                             </Grid>
 
@@ -629,7 +629,7 @@ export default function CampaignDashboard() {
                                                     Campaign End
                                                 </Typography>
                                                 <Typography variant="body2" color="text.secondary">
-                                                    {formatDate(campaign.endDate.toLocaleDateString())}
+                                                    {formatDate(new Date(campaign.endDate).toLocaleDateString())}
                                                 </Typography>
                                             </Grid>
                                         </Grid>
@@ -718,10 +718,10 @@ export default function CampaignDashboard() {
                                         Timeline
                                     </Typography>
                                     <Typography variant="body2">
-                                        Start: {formatDate(campaign.startDate.toLocaleDateString())}
+                                        Start: {formatDate(new Date(campaign.startDate).toISOString())}
                                     </Typography>
                                     <Typography variant="body2" paragraph>
-                                        End: {formatDate(campaign.endDate.toLocaleDateString())}
+                                        End: {formatDate(new Date(campaign.endDate).toISOString())}
                                     </Typography>
                                 </Grid>
 
