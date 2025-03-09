@@ -1,12 +1,7 @@
-import React from 'react';
+'use client';
 
-const BusinessPage = () => {
-    return (
-        <div>
-            <h1>Business Page</h1>
-            <p>Welcome to the business page!</p>
-        </div>
-    );
-};
+import { redirect } from 'next/navigation';
 
-export default BusinessPage;
+export default function BusinessPage() {
+  redirect('/business/campaigns');
+}

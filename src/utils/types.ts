@@ -6,8 +6,12 @@
 // There are no intermediate types (for now) for businesses and
 // students, so we use the prisma types directly for both.
 
-import { Compensations } from "@prisma/client";
+import { Compensations, Campaign as PrismaCampaign, StudentAthlete } from "@prisma/client";
 
+export interface Campaign extends PrismaCampaign {
+    campaign: PrismaCampaign;
+    studentAthletes: StudentAthlete[];
+}
 
 export interface CampaignFormData {
     name: string;
@@ -28,6 +32,23 @@ export interface GeneratedCampaign {
     budgetBreakdown: string;
     creativeConcept: string;
     metrics: string;
+}
+
+export interface MonthlyAnalytics {
+  month: string;
+  timestamp: number;
+  investment: number;
+  revenue: number;
+  profit: number;
+}
+
+export interface CampaignDistribution {
+  name: string;
+  value: number;
+}
+
+export interface AnalyticsDataWithROI extends MonthlyAnalytics {
+  roi: string;
 }
 
 export const sportsOptions = [

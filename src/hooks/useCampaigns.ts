@@ -1,13 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Campaign, Business, StudentAthlete } from '@prisma/client';
-
-interface CampaignWithRelations extends Campaign {
-  business: Business;
-  studentAthletes: StudentAthlete[];
-}
+import { Campaign } from '@/utils/types';
 
 export function useCampaigns(businessId?: number) {
-  const [campaigns, setCampaigns] = useState<CampaignWithRelations[]>([]);
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
