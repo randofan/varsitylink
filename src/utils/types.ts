@@ -19,6 +19,7 @@ export interface CampaignFormData {
     maxBudget: string;  // can be $$$ amount or in-kind
     compensation: Compensations;
     sports: string[];
+    sportsGender: 'mens' | 'womens'; // Add this field
     startDate: Date;
     endDate: Date;
     businessId: number; // ID of the business creating the campaign
@@ -51,19 +52,29 @@ export interface AnalyticsDataWithROI extends MonthlyAnalytics {
   roi: string;
 }
 
-export const sportsOptions = [
-    'Rowing',
-    'Beach Volleyball',
-    'Gymnastics',
-    'Softball',
-    'Golf',
-    'Tennis',
-    'Track and Field',
-    'Wrestling',
-    'Volleyball',
-    'Soccer',
-    'Baseball',
-    'Basketball',
-    'Football',
-    'Other'
+export const mensSportsOptions = [
+  'Rowing',
+  'Golf',
+  'Tennis',
+  'Track and Field',
+  'Soccer',
+  'Baseball',
+  'Basketball',
+  'Cross Country',
+  'Football',
+  'Other'
+];
+
+export const womensSportsOptions = [
+  'Rowing',
+  'Beach Volleyball',
+  'Gymnastics',
+  'Softball',
+  'Golf',
+  'Tennis',
+  'Track and Field',
+  'Volleyball',
+  'Cross Country',
+  'Soccer',
+  'Basketball',
 ];

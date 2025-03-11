@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       businessId
     } = formData;
 
-    console.log("fetching data")
+    console.log(`businessId: ${businessId}`)
     // Fetch business details from the API
     const base_url = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     const businessResponse = await GET(new Request(`${base_url}/api/business?id=${businessId}`));
@@ -39,8 +39,9 @@ export async function POST(request: Request) {
     const business = await businessResponse.json();
 
     console.log("data parsed")
+    console.log(business)
 
-    const prompt = `Generate a detailed marketing campaign strategy with the following details:
+    const prompt = `Your boss has given a rough idea of what they want. Generate a detailed marketing campaign strategy with the following details:
       - Business Name: ${business.name}
       - Business Mission: ${business.missionStatement}
       - Business Industry: ${business.industry}
@@ -106,12 +107,12 @@ export async function POST(request: Request) {
 
       // Boolean and optional numeric fields
       productLaunch: Boolean(campaignData.productLaunch),
-      engagementGoal,
-      conversionGoal,
-      impressionsGoal,
-      contentDeliverables: campaignData.contentDeliverables || null,
+      engagementGoal: engagementGoal || 1000,
+      conversionGoal: conversionGoal || 100,
+      impressionsGoal: impressionsGoal || 10000,
+      contentDeliverables: campaignData.contentDeliverables,
       eventPromotion: Boolean(campaignData.eventPromotion),
-      csrInitiative: Boolean(campaignData.csrInitiative),
+      contentDetails: campaignData.contentDetails,
 
       // Default status for new campaigns
       status: CampaignStatus.PENDING

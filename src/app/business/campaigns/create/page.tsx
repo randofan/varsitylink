@@ -25,7 +25,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { Controller, useForm } from 'react-hook-form';
 import StudentAthleteCard from '@/components/StudentAthleteCard';
-import { CampaignFormData, sportsOptions } from '@/utils/types';
+import { CampaignFormData, mensSportsOptions, womensSportsOptions } from '@/utils/types';
 import { StudentAthlete, Campaign, Compensations } from '@prisma/client';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import MatchingOverlay from '@/components/MatchingOverlay';
@@ -78,18 +78,23 @@ export default function SignupWizard() {
 
     const prevStep = () => setStep(step - 1);
 
-    const { control, handleSubmit } = useForm<CampaignFormData>({
+    const { control, handleSubmit, watch } = useForm<CampaignFormData>({
         defaultValues: {
             name: '',
             campaignSummary: '',
             maxBudget: '',
             compensation: Compensations.FixedFee,
             sports: [],
+            sportsGender: 'mens', // Add default value
             startDate: new Date(),
             endDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
-            businessId: 1  // Hardcoded business ID
+            businessId: 1
         }
     });
+
+    // Add a watch for sportsGender to determine which options to show
+    const sportsGender = watch('sportsGender');
+    const currentSportsOptions = sportsGender === 'mens' ? mensSportsOptions : womensSportsOptions;
 
     // Initialize and fetch athletes
     useEffect(() => {
@@ -320,18 +325,35 @@ export default function SignupWizard() {
                                     )}
                                 />
                                 <Controller
+                                    name="sportsGender"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <FormControl fullWidth>
+                                            <InputLabel>Sports Category</InputLabel>
+                                            <Select
+                                                {...field}
+                                                label="Sports Category"
+                                            >
+                                                <MenuItem value="mens">Men&apos;s Sports</MenuItem>
+                                                <MenuItem value="womens">Women&apos;s Sports</MenuItem>
+                                            </Select>
+                                        </FormControl>
+                                    )}
+                                />
+
+                                <Controller
                                     name="sports"
                                     control={control}
                                     rules={{ required: 'At least one sport is required' }}
                                     render={({ field, fieldState }) => (
                                         <FormControl fullWidth error={!!fieldState.error}>
-                                            <InputLabel>Sports</InputLabel>
+                                            <InputLabel>{sportsGender === 'mens' ? "Men's Sports" : "Women's Sports"}</InputLabel>
                                             <Select
                                                 {...field}
                                                 multiple
-                                                label="Sports"
+                                                label={sportsGender === 'mens' ? "Men's Sports" : "Women's Sports"}
                                             >
-                                                {sportsOptions.map((sport) => (
+                                                {currentSportsOptions.map((sport) => (
                                                     <MenuItem key={sport} value={sport}>
                                                         {sport}
                                                     </MenuItem>
@@ -559,9 +581,9 @@ export default function SignupWizard() {
                                     {selectedAthletes.map((athlete, index) => (
                                         <Grid item xs={12} sm={6} md={4} key={athlete.id}>
                                             <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                                                <Box 
+                                                <Box
                                                     onClick={() => handleOpenAthleteModal(athlete)}
-                                                    sx={{ 
+                                                    sx={{
                                                         cursor: 'pointer',
                                                         '& > *': { // Target direct children
                                                             transition: 'transform 0.2s',
@@ -708,6 +730,16 @@ export default function SignupWizard() {
                                         </Typography>
                                     </Grid>
                                 )}
+
+                                {generatedCampaign.contentDetails && (
+                                    <Grid item xs={12}>
+                                        <Typography variant="subtitle2">Content Details</Typography>
+                                        <Typography variant="body2" paragraph>
+                                            {generatedCampaign.contentDetails}
+                                        </Typography>
+                                    </Grid>
+                                )}
+
                             </Grid>
 
                             <Typography variant="h6" gutterBottom>

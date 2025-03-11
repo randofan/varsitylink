@@ -1,8 +1,15 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { context } from '@/utils/uwRentInfo';
 
-const systemInstruction = `${context} Generate a structured marketing campaign strategy tailored to businesses looking to collaborate with athletes for
-brand promotion. The response must be formatted as a JSON object with the following fields:
+const systemInstruction = `You are a marketing campaign content manager for ${context}. The company is looking to collaborate with student athletes for brand promotion.
+
+You are partnering with a University of Washington student athlete to engage in influencer marketing. You should incorporate the student athlete's brand as an athlete in your messaging.
+
+Write a thorough outline the best marketing campaign. Consider other popular influencer marketing trends, but don't do anything too cringe or outlandish. When selecting content type and marketing channels, consider the total budget available to ensure it all stays within budget. Budgeting tips: a single social media post usually costs between $100 and $200, an in-person apperance usually costs between $500 and $1000.
+
+If social media posts are deemed appropriate, include content guidelines and a caption for the social media posts conveying excitement for the brand. If videos are deemed appropriate, include a storyboard idea and a script. If in-person appearances are deemed appropriate, include a description of the event and the athlete's role in it.
+
+Generate a structured marketing campaign strategy tailored to businesses looking to collaborate with student athletes for brand promotion. The response must be formatted as a JSON object with the following fields:
 {
   "aiSummary": "string: Provide a brief summary of the campaign, highlighting its key features and expected outcomes.",
   "objectives": "string- Define the campaign key objectives. Ensure they align with the business's goals and the athlete's influence. Be realistic—avoid false claims or unattainable promises.",
@@ -24,11 +31,11 @@ brand promotion. The response must be formatted as a JSON object with the follow
   "impressionsGoal": integer | null- Estimate the projected reach in terms of social media impressions.,
   "contentDeliverables": "string | null: List specific content types that will be created (e.g., videos, social media posts, athlete interviews).",
   "eventPromotion": boolean- Specify whether the campaign involves an event (true/false).",
-  "csrInitiative": boolean- Specify whether the campaign ties into a social impact initiative (true/false).",
-  "studentAthleteCount": integer- Based on the budget and campaign scope, recommend the optimal number of student athletes to involve in this campaign. Consider cost-effectiveness and campaign needs.
+  "studentAthleteCount": integer- Based on the budget and campaign scope, recommend the optimal number of student athletes to involve in this campaign. Consider cost-effectiveness and campaign needs.,
+  "contentDetails": "string: Provide comprehensive details for each promotional piece. For in-person appearances, include the event concept, venue suggestions, timing, athlete's specific role, interaction guidelines, and promotional strategy. For social media, include specific post captions, hashtags, visual guidelines, and posting instructions. For video content, include detailed storyboards with shot-by-shot descriptions and complete scripts to read from. Ensure all content aligns with the brand voice and campaign objectives."
 }
-Return only JSON. Ensure that all numeric fields are returned as integers and boolean fields are true/false, NOT strings. Return only the JSON object with no extra text or formatting.
-`;
+
+Return only JSON. Ensure that all numeric fields are returned as integers and boolean fields are true/false, NOT strings. Return only the JSON object with no extra text or formatting.`;
 
 const globalForGemini = global as unknown as { geminiModel: ReturnType<typeof initGeminiModel> };
 

@@ -35,6 +35,8 @@ import {
     Download as DownloadIcon,
     Mail as MailIcon,
     ThumbUp as ThumbUpIcon,
+    Videocam as VideocamIcon,
+    Image as ImageIcon
 } from '@mui/icons-material';
 import { StudentAthlete } from '@prisma/client';
 import MessageDialog from '@/components/MessageDialog';
@@ -690,11 +692,61 @@ export default function CampaignDashboard() {
                                 {renderInfoSection('Influencer Angle', campaign.influencerAngle)}
                                 {renderInfoSection('Brand Mentions', campaign.brandMentions)}
                                 {renderInfoSection('Creative Concept', campaign.creativeConcept)}
-                                {renderInfoSection('Content Guidelines', campaign.creativeConcept)}
                                 {renderInfoSection('Success Metrics', campaign.metrics)}
                                 {renderInfoSection('Timeline', campaign.timeline)}
                                 {renderInfoSection('Channel Strategy', campaign.channels)}
                                 {renderInfoSection('Budget Breakdown', campaign.budgetBreakdown)}
+
+                                {/* Content Details Section */}
+                                {campaign.contentDetails && (
+                                    <Grid item xs={12}>
+                                        <Typography variant="h6" color="primary" fontWeight="medium" gutterBottom sx={{ mt: 2 }}>
+                                            Campaign Content Instructions
+                                        </Typography>
+
+                                        <Paper
+                                            elevation={2}
+                                            sx={{
+                                                p: 3,
+                                                mt: 1,
+                                                mb: 2,
+                                                bgcolor: '#f8f9ff',
+                                                borderLeft: '4px solid #4767F5'
+                                            }}
+                                        >
+                                            <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>
+                                                {campaign.contentDetails}
+                                            </Typography>
+                                        </Paper>
+
+                                        {/* Visual indicators for content types */}
+                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                                            {campaign.eventPromotion && (
+                                                <Chip
+                                                    icon={<EventIcon fontSize="small" />}
+                                                    label="In-Person Event"
+                                                    sx={{ bgcolor: '#EEF2FF', color: '#4767F5' }}
+                                                />
+                                            )}
+                                            {campaign.contentDeliverables && campaign.contentDeliverables.toLowerCase().includes('video') && (
+                                                <Chip
+                                                    icon={<VideocamIcon fontSize="small" />}
+                                                    label="Video Content"
+                                                    sx={{ bgcolor: '#EEF2FF', color: '#4767F5' }}
+                                                />
+                                            )}
+                                            {campaign.contentDeliverables && campaign.contentDeliverables.toLowerCase().includes('post') && (
+                                                <Chip
+                                                    icon={<ImageIcon fontSize="small" />}
+                                                    label="Social Media Posts"
+                                                    sx={{ bgcolor: '#EEF2FF', color: '#4767F5' }}
+                                                />
+                                            )}
+                                        </Box>
+
+                                        <Divider sx={{ my: 2 }} />
+                                    </Grid>
+                                )}
 
                                 <Grid item xs={12} sm={6}>
                                     <Typography variant="subtitle1" color="primary" fontWeight="medium">
@@ -707,7 +759,6 @@ export default function CampaignDashboard() {
                                         Budget: {campaign.maxBudget}
                                     </Typography>
                                 </Grid>
-
                                 <Grid item xs={12} sm={6}>
                                     <Typography variant="subtitle1" color="primary" fontWeight="medium">
                                         Timeline
@@ -719,7 +770,6 @@ export default function CampaignDashboard() {
                                         End: {formatDate(new Date(campaign.endDate).toISOString())}
                                     </Typography>
                                 </Grid>
-
                                 <Grid item xs={12}>
                                     <Typography variant="subtitle1" color="primary" fontWeight="medium">
                                         Sports
@@ -848,7 +898,6 @@ export default function CampaignDashboard() {
                         <SportsIcon sx={{ mr: 1, color: '#4767F5' }} />
                         Campaign Athletes
                     </Typography>
-
                     <Grid container spacing={3}>
                         {campaign.studentAthletes.map((athlete) => (
                             <Grid item xs={12} sm={6} md={4} key={athlete.id}>
@@ -909,7 +958,6 @@ export default function CampaignDashboard() {
                         <BarChartIcon sx={{ mr: 1, color: '#4767F5' }} />
                         Campaign Analytics
                     </Typography>
-
                     <Grid container spacing={3} sx={{ mb: 4 }}>
                         <Grid item xs={12} md={6}>
                             <Card sx={{ height: '100%', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
@@ -929,7 +977,6 @@ export default function CampaignDashboard() {
                                 </CardContent>
                             </Card>
                         </Grid>
-
                         <Grid item xs={12} md={6}>
                             <Card sx={{ height: '100%', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
                                 <CardContent sx={{ textAlign: 'center', py: 3 }}>
@@ -972,7 +1019,39 @@ export default function CampaignDashboard() {
                                     </ResponsiveContainer>
                                 </Box>
                             </Card>
+                        </Grid>
 
+                        {/* Demographics section */}
+                        <Grid item xs={12} lg={4}>
+                            <Card sx={{ p: 3, mb: 3, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+                                <Typography variant="h6" gutterBottom>
+                                    Audience Demographics
+                                </Typography>
+                                <Box sx={{ height: 280, width: '100%', mt: 2 }}>
+                                    <ResponsiveContainer>
+                                        <PieChart>
+                                            <Pie
+                                                data={demographicData}
+                                                cx="50%"
+                                                cy="50%"
+                                                outerRadius={100}
+                                                fill="#8884d8"
+                                                dataKey="value"
+                                                labelLine={true}
+                                                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                            >
+                                                {demographicData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </Box>
+                            </Card>
+                        </Grid>
+
+                        <Grid item xs={12}>
                             <Card sx={{ p: 3, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
                                 <Typography variant="h6" gutterBottom>
                                     Platform Performance
@@ -989,36 +1068,6 @@ export default function CampaignDashboard() {
                                             <Bar yAxisId="left" dataKey="impressions" fill="#4767F5" name="Impressions" />
                                             <Bar yAxisId="right" dataKey="engagement" fill="#6E8AFF" name="Engagement" />
                                         </BarChart>
-                                    </ResponsiveContainer>
-                                </Box>
-                            </Card>
-                        </Grid>
-
-                        {/* Demographics section */}
-                        <Grid item xs={12} lg={4}>
-                            <Card sx={{ p: 3, mb: 3, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-                                <Typography variant="h6" gutterBottom>
-                                    Audience Demographics
-                                </Typography>
-                                <Box sx={{ height: 280, width: '100%', mt: 2 }}>
-                                    <ResponsiveContainer>
-                                        <PieChart>
-                                            <Pie
-                                                data={demographicData}
-                                                cx="50%"
-                                                cy="50%"
-                                                labelLine={true}
-                                                outerRadius={100}
-                                                fill="#8884d8"
-                                                dataKey="value"
-                                                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                                            >
-                                                {demographicData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                                ))}
-                                            </Pie>
-                                            <Tooltip />
-                                        </PieChart>
                                     </ResponsiveContainer>
                                 </Box>
                             </Card>

@@ -44,12 +44,12 @@ export async function POST(request: Request) {
         metrics: campaignData.metrics || "",
         questions: campaignData.questions || "",
         productLaunch: Boolean(campaignData.productLaunch),
-        engagementGoal: parseInt(campaignData.engagementGoal) || null,
-        conversionGoal: parseInt(campaignData.conversionGoal) || null,
-        impressionsGoal: parseInt(campaignData.impressionsGoal) || null,
-        contentDeliverables: campaignData.contentDeliverables || null,
+        engagementGoal: parseInt(campaignData.engagementGoal),
+        conversionGoal: parseInt(campaignData.conversionGoal),
+        impressionsGoal: parseInt(campaignData.impressionsGoal),
+        contentDeliverables: campaignData.contentDeliverables || "",
         eventPromotion: Boolean(campaignData.eventPromotion),
-        csrInitiative: Boolean(campaignData.csrInitiative)
+        contentDetails: campaignData.contentDetails || "",
       },
       include: {
         business: true,
