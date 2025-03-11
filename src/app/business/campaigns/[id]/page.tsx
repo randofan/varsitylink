@@ -141,7 +141,7 @@ export default function CampaignDashboard() {
 
     // Calculate total campaign metrics
     const calculateCampaignMetrics = () => {
-        if (!campaign || !campaign.studentAthletes.length) return { impressions: 120000, engagements: 18000, cpa: 18.75 };
+        if (!campaign || !campaign.studentAthletes.length) return { impressions: 120000, engagements: 18000 };
 
         const totalFollowers = campaign.studentAthletes.reduce((sum, athlete) => {
             return sum + (athlete.instagramFollowers || 0) +
@@ -157,12 +157,7 @@ export default function CampaignDashboard() {
         const impressions = Math.round(totalFollowers * averagePostsPerAthlete * estimatedImpressionsPerFollower);
         const engagements = Math.round(impressions * estimatedEngagementRate);
 
-        // Parse budget to calculate CPA
-        const maxBudget = parseFloat(campaign.maxBudget.replace(/[^0-9.]/g, '')) || 10000;
-        const estimatedConversions = Math.round(engagements * 0.0002);
-        const cpa = estimatedConversions > 0 ? Number((maxBudget / estimatedConversions)) : 18.75;
-
-        return { impressions, engagements, cpa };
+        return { impressions, engagements };
     };
 
     // Use the generated data
@@ -916,7 +911,7 @@ export default function CampaignDashboard() {
                     </Typography>
 
                     <Grid container spacing={3} sx={{ mb: 4 }}>
-                        <Grid item xs={12} md={4}>
+                        <Grid item xs={12} md={6}>
                             <Card sx={{ height: '100%', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
                                 <CardContent sx={{ textAlign: 'center', py: 3 }}>
                                     <Avatar sx={{ bgcolor: '#EEF2FF', color: '#4767F5', width: 64, height: 64, mx: 'auto', mb: 2 }}>
@@ -935,7 +930,7 @@ export default function CampaignDashboard() {
                             </Card>
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid item xs={12} md={6}>
                             <Card sx={{ height: '100%', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
                                 <CardContent sx={{ textAlign: 'center', py: 3 }}>
                                     <Avatar sx={{ bgcolor: '#EEF2FF', color: '#4767F5', width: 64, height: 64, mx: 'auto', mb: 2 }}>
@@ -953,35 +948,14 @@ export default function CampaignDashboard() {
                                 </CardContent>
                             </Card>
                         </Grid>
-
-                        <Grid item xs={12} md={4}>
-                            <Card sx={{ height: '100%', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-                                <CardContent sx={{ textAlign: 'center', py: 3 }}>
-                                    <Avatar sx={{ bgcolor: '#EEF2FF', color: '#4767F5', width: 64, height: 64, mx: 'auto', mb: 2 }}>
-                                        <MoneyIcon fontSize="large" />
-                                    </Avatar>
-                                    <Typography variant="h6" color="text.secondary" gutterBottom>
-                                        Customer Acquisition Cost
-                                    </Typography>
-                                    <Typography variant="h3" sx={{ my: 1, color: '#4767F5', fontWeight: 'bold' }}>
-                                        ${campaignMetrics.cpa}
-                                    </Typography>
-                                    <Typography variant="body2" color="success.main" sx={{ fontWeight: 'medium' }}>
-                                        42% lower than other channels
-                                    </Typography>
-                                </CardContent>
-                            </Card>
-                        </Grid>
                     </Grid>
 
                     <Grid container spacing={3}>
+                        {/* Analytics charts section */}
                         <Grid item xs={12} lg={8}>
                             <Card sx={{ p: 3, mb: 3, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
                                 <Typography variant="h6" gutterBottom>
                                     Engagement Metrics by Athlete
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                                    Performance breakdown for each athlete in the campaign
                                 </Typography>
                                 <Box sx={{ height: 350, width: '100%' }}>
                                     <ResponsiveContainer>
@@ -989,14 +963,7 @@ export default function CampaignDashboard() {
                                             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                                             <XAxis dataKey="athlete" tick={{ fill: '#666' }} />
                                             <YAxis tick={{ fill: '#666' }} />
-                                            <Tooltip
-                                                contentStyle={{
-                                                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                                                    borderRadius: '8px',
-                                                    border: 'none',
-                                                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-                                                }}
-                                            />
+                                            <Tooltip />
                                             <Legend />
                                             <Bar dataKey="Engagement Rate" fill="#4767F5" />
                                             <Bar dataKey="Click Rate" fill="#6E8AFF" />
@@ -1010,24 +977,14 @@ export default function CampaignDashboard() {
                                 <Typography variant="h6" gutterBottom>
                                     Platform Performance
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                                    Performance metrics across different social media platforms
-                                </Typography>
                                 <Box sx={{ height: 350, width: '100%' }}>
                                     <ResponsiveContainer>
                                         <BarChart data={platformData}>
                                             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                                            <XAxis dataKey="name" tick={{ fill: '#666' }} />
-                                            <YAxis yAxisId="left" tick={{ fill: '#666' }} />
-                                            <YAxis yAxisId="right" orientation="right" tick={{ fill: '#666' }} />
-                                            <Tooltip
-                                                contentStyle={{
-                                                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                                                    borderRadius: '8px',
-                                                    border: 'none',
-                                                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-                                                }}
-                                            />
+                                            <XAxis dataKey="name" />
+                                            <YAxis yAxisId="left" />
+                                            <YAxis yAxisId="right" orientation="right" />
+                                            <Tooltip />
                                             <Legend />
                                             <Bar yAxisId="left" dataKey="impressions" fill="#4767F5" name="Impressions" />
                                             <Bar yAxisId="right" dataKey="engagement" fill="#6E8AFF" name="Engagement" />
@@ -1037,13 +994,11 @@ export default function CampaignDashboard() {
                             </Card>
                         </Grid>
 
+                        {/* Demographics section */}
                         <Grid item xs={12} lg={4}>
                             <Card sx={{ p: 3, mb: 3, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
                                 <Typography variant="h6" gutterBottom>
                                     Audience Demographics
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                                    Age distribution of campaign audience
                                 </Typography>
                                 <Box sx={{ height: 280, width: '100%', mt: 2 }}>
                                     <ResponsiveContainer>
@@ -1062,103 +1017,11 @@ export default function CampaignDashboard() {
                                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                                 ))}
                                             </Pie>
-                                            <Tooltip
-                                                contentStyle={{
-                                                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                                                    borderRadius: '8px',
-                                                    border: 'none',
-                                                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-                                                }}
-                                            />
+                                            <Tooltip />
                                         </PieChart>
                                     </ResponsiveContainer>
                                 </Box>
                             </Card>
-
-                            <Card sx={{ p: 3, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-                                <Typography variant="h6" gutterBottom>
-                                    CAC Comparison
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                                    Customer Acquisition Cost compared to other channels
-                                </Typography>
-                                <Box sx={{ p: 2, bgcolor: '#f5f7ff', borderRadius: 2, mb: 2 }}>
-                                    <Grid container sx={{ mb: 1, fontWeight: 'medium', color: '#4767F5' }}>
-                                        <Grid item xs={8}>
-                                            <Typography variant="body2" fontWeight="bold">Marketing Channel</Typography>
-                                        </Grid>
-                                        <Grid item xs={4} sx={{ textAlign: 'right' }}>
-                                            <Typography variant="body2" fontWeight="bold">CAC</Typography>
-                                        </Grid>
-                                    </Grid>
-                                    <Divider sx={{ mb: 1 }} />
-
-                                    <Grid container sx={{ mb: 1 }}>
-                                        <Grid item xs={8}>
-                                            <Typography variant="body2">NIL Athletes</Typography>
-                                        </Grid>
-                                        <Grid item xs={4} sx={{ textAlign: 'right' }}>
-                                            <Typography variant="body2" fontWeight="bold" color="success.main">${campaignMetrics.cpa}</Typography>
-                                        </Grid>
-                                    </Grid>
-
-                                    <Grid container sx={{ mb: 1 }}>
-                                        <Grid item xs={8}>
-                                            <Typography variant="body2">Social Media Ads</Typography>
-                                        </Grid>
-                                        <Grid item xs={4} sx={{ textAlign: 'right' }}>
-                                            <Typography variant="body2">${(campaignMetrics.cpa * 1.7).toFixed(2)}</Typography>
-                                        </Grid>
-                                    </Grid>
-
-                                    <Grid container sx={{ mb: 1 }}>
-                                        <Grid item xs={8}>
-                                            <Typography variant="body2">Google Ads</Typography>
-                                        </Grid>
-                                        <Grid item xs={4} sx={{ textAlign: 'right' }}>
-                                            <Typography variant="body2">${(campaignMetrics.cpa * 1.5).toFixed(2)}</Typography>
-                                        </Grid>
-                                    </Grid>
-
-                                    <Grid container>
-                                        <Grid item xs={8}>
-                                            <Typography variant="body2">Traditional Media</Typography>
-                                        </Grid>
-                                        <Grid item xs={4} sx={{ textAlign: 'right' }}>
-                                            <Typography variant="body2">${(campaignMetrics.cpa * 2.4).toFixed(2)}</Typography>
-                                        </Grid>
-                                    </Grid>
-                                </Box>
-
-                                <Card sx={{ p: 2, bgcolor: 'primary.light', color: 'white', borderRadius: 2 }}>
-                                    <Typography variant="body1" fontWeight="bold">
-                                        CAC Savings:
-                                    </Typography>
-                                    <Typography variant="h4" fontWeight="bold">
-                                        42%
-                                    </Typography>
-                                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                                        Compared to traditional marketing channels
-                                    </Typography>
-                                </Card>
-                            </Card>
-                        </Grid>
-
-                        <Grid item xs={12}>
-                            <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
-                                <Button
-                                    variant="contained"
-                                    startIcon={<DownloadIcon />}
-                                    sx={{
-                                        bgcolor: '#4767F5',
-                                        '&:hover': { bgcolor: '#3852c4' },
-                                        textTransform: 'none',
-                                        px: 4
-                                    }}
-                                >
-                                    Download Full Analytics Report
-                                </Button>
-                            </Box>
                         </Grid>
                     </Grid>
                 </Paper>
